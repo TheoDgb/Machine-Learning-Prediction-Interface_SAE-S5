@@ -115,9 +115,9 @@
                 <input type="number" id="numPeriods" name="numPeriods" required>
             </div>
             <div class="form-group">
-                <button type="button" onclick="makeFuturePrediction()">Predict Future</button>
+                <button type="button" onclick="makeFuturePrediction()">Predict future by periods</button>
             </div>
-            <img src="{{ graph_path }}" id="futurePredictionResult">
+            <img src="{{ graph_path }}" alt="Future prediction graph by periods :" id="futurePredictionResult">
         </form>
     </div>
 </body>
@@ -146,21 +146,12 @@
     }
 </style>
 <script>
-    // function runScript() {
-    //     $("#status").text("Script en cours d'exécution...");
-    //     $.get("/load_energy_models", function(data) {
-    //         $("#status").text("Exécution du script terminée");
-    //     });
-    // }
     function runScript() {
         $("#status").text("Script en cours d'exécution...");
         $.get("/load_energy_models")
             .done(function() {
                 $("#status").text("Exécution du script terminée");
             })
-        // .fail(function() {
-        //     $("#status").text("Erreur lors de l'exécution du script");
-        // });
     }
 
     async function makePrediction() {

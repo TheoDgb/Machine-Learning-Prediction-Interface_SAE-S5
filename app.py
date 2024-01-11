@@ -66,6 +66,7 @@ def predict():
         print('Error:', e)
         return jsonify({'error': 'Internal Server Error'}), 500
 
+
 @app.route('/energy/predict-future', methods=['POST'])
 def predict_future():
     try:
