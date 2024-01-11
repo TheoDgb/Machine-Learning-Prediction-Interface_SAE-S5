@@ -4,7 +4,7 @@ Groupe : BASQUIN Nicolas, BOLMONT Hugo, DAL GOBBO Théo
 ## Description du projet
 Développement d'une interface de visualisation de prédiction de données sur 3 sujets:
 <ul><li>éruptions solaires</li><li>météo</li><li>production d'énergie</li></ul>
-html/css/bootstrap/flask/javascript/python/joblib/scikit-learn/pandas/numpy/matplotlib
+HTML/CSS/Bootstrap/Flask/JavaScript/Python/joblib/scikit-learn/Pandas/NumPy/Matplotlib
 <br> modèles utlisés : LightGBM, CatBoost, XGBoost, RandomForest, ExtraTrees, DecisionTree
 <br> tuning : Bayesian
 <br> techniques d'ensemble utilisées : Voting, Stacking, Bagging
@@ -53,12 +53,20 @@ html/css/bootstrap/flask/javascript/python/joblib/scikit-learn/pandas/numpy/matp
     The data/graphs are then sent back to the Flask server and displayed on the web pages.
 
 ## Indications générales de mise en œuvre
-### Démarrer l'interface
+### Français
+#### Démarrer l'interface
     python3 app.py
-
-### Avant l'utilisation des formulaires de requêtes pour chaque sujet
-    Exécuter les scripts python qui enregistrent les modèles en joblib si un bouton y est dédié
+#### Avant l'utilisation des formulaires de requêtes pour chaque sujet
+    Exécuter les scripts Python qui enregistrent les modèles en joblib si un bouton y est dédié
     /!\ Ces actions peuvent prendre plusieurs minutes /!\
     Si aucun bouton n'est dédié à l'enregistrement des modèles, les modèles (peu lourds en espace de stockage) sont déjà enregistrés dans la structure du projet
+#### Sélectionner / Définir les caractéristiques pour la requête choisie avant de l'exécuter
 
-### Sélectionner / définir les caractéristiques pour la requête choisie avant de l'exécuter
+### English
+#### Starting the interface
+    python3 app.py
+#### Before using the request forms for each subject
+    Run the Python scripts that save the models using joblib if a button is dedicated to it
+    /!\ These actions can take several minutes /!\
+    If no button is dedicated to saving the models, the models (not very heavy in storage space) are already saved in the project structure
+#### Select / Define the features for the chosen query before executing it
