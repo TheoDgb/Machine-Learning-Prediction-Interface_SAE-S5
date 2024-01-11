@@ -13,6 +13,7 @@
     Des requêtes exécutent des scripts Python qui chargent les données et enregistrent les modèles avec joblib dans les dossiers joblib/... .
     Les modèles sont ensuite utilisés pour prédire les données / créer des graphiques dans les dossiers static/images/... en fonction des caractéristiques données par l'utilisateur sur les pages web.
     Les données / graphiques sont ensuite renvoyés au serveur Flask et affichés sur les pages web.
+<br>
 
 ## English
 ### FRONTEND

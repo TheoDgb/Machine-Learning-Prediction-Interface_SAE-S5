@@ -12,7 +12,7 @@ html/css/bootstrap/flask/javascript/python/joblib/scikit-learn/pandas/numpy/matp
 <br> tuning : Bayesian
 <br> techniques d'ensemble utilisées : Voting, Stacking, Bagging
 
-Document de présentation de l'architecture du projet : [PROJECTARCHITECTURE.md](PROJECTARCHITECTURE.md)
+<br>Document de présentation de l'architecture du projet : [PROJECTARCHITECTURE.md](PROJECTARCHITECTURE.md)
 
 ## Suivi du projet
     sklearn + node.js OU conversion scikit en tensorflow = pénible
