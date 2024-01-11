@@ -1,9 +1,6 @@
 # SAE-S5
 Groupe : BASQUIN Nicolas, BOLMONT Hugo, DAL GOBBO Théo
 
-### Démarrer l'interface
-    python3 app.py
-
 ## Description du projet
 Développement d'une interface de visualisation de prédiction de données sur 3 sujets:
 <ul><li>éruptions solaires</li><li>météo</li><li>production d'énergie</li></ul>
@@ -26,8 +23,7 @@ html/css/bootstrap/flask/javascript/python/joblib/scikit-learn/pandas/numpy/matp
     Script qui enregistre les modèles en joblib
     Création d'une requête qui envoie en paramètre la source, le modèle ainsi qu'un nombre de période choisi, exécute un script python qui charge le modèle choisi, fait des prédictions et créer un graphique. Ce graphique est ensuite affiché sur la page html
 
-## Project Architecture
-
+## Architecture du projet
 ### Français
 #### FRONTEND
     Le dossier templates contient les fichiers HTML qui sont utilisés pour afficher les pages web.
@@ -55,3 +51,14 @@ html/css/bootstrap/flask/javascript/python/joblib/scikit-learn/pandas/numpy/matp
     Requests trigger Python scripts that load data and save models using joblib in the joblib/... directories.
     The models are then utilized to predict data/create graphs in the static/images/... directories based on user-provided features on the web pages.
     The data/graphs are then sent back to the Flask server and displayed on the web pages.
+
+## Indications générales de mise en œuvre
+### Démarrer l'interface
+    python3 app.py
+
+### Avant l'utilisation des formulaires de requêtes pour chaque sujet
+    Exécuter les scripts python qui enregistrent les modèles en joblib si un bouton y est dédié
+    /!\ Ces actions peuvent prendre plusieurs minutes /!\
+    Si aucun bouton n'est dédié à l'enregistrement des modèles, les modèles (peu lourds en espace de stockage) sont déjà enregistrés dans la structure du projet
+
+### Sélectionner / définir les caractéristiques pour la requête choisie avant de l'exécuter
