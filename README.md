@@ -1,4 +1,5 @@
 # SAE-S5
+Groupe : BASQUIN Nicolas, BOLMONT Hugo, DAL GOBBO Théo
 
 ### Démarrer l'interface
     python3 app.py
@@ -10,7 +11,8 @@ html/css/bootstrap/flask/javascript/python/joblib/scikit-learn/pandas/numpy/matp
 <br> modèles utlisés : LightGBM, CatBoost, XGBoost, RandomForest, ExtraTrees, DecisionTree
 <br> tuning : Bayesian
 <br> techniques d'ensemble utilisées : Voting, Stacking, Bagging
-<br><br> Basquin Nicolas, Bolmont Hugo, Dal Gobbo Théo
+
+Document de présentation de l'architecture du projet : [PROJECTARCHITECTURE.md](PROJECTARCHITECTURE.md)
 
 ## Suivi du projet
     sklearn + node.js OU conversion scikit en tensorflow = pénible
@@ -24,4 +26,4 @@ html/css/bootstrap/flask/javascript/python/joblib/scikit-learn/pandas/numpy/matp
     Théo : Création des routes / templates / de la structure du projet pour les 3 sujets,
     Réalisation du front avec Bootstrap,
     Script qui enregistre les modèles en joblib
-    Création d'une requête qui envoie en paramètre la source, le modèle ainsi qu'un nombre de période choisi, exécute un script python qui charge le modèle choisi, fait des prédictions et créer un graphique. Ce graphique est ensuite affiché sur la page html 
+    Création d'une requête qui envoie en paramètre la source, le modèle ainsi qu'un nombre de période choisi, exécute un script python qui charge le modèle choisi, fait des prédictions et créer un graphique. Ce graphique est ensuite affiché sur la page html
