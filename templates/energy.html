@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Machine Learning Prediction</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-custom">
+        <a class="navbar-brand" href="#">Machine Learning Prediction</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="/">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/solarflare">Solar Flare</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/weather">Weather</a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="/energy">Energy Production</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h2>Energy Production</h2>
+        <br>
+        <h4>Load prediction models</h4>
+        <div class="form-group">
+            <button onclick="runScript()">Load models /!\ MAY TAKE SOME TIME</button>
+            <div id="status" style="margin-left: 10px;"></div>
+        </div>
+        <br>
+        <h4>Prediction by features</h4>
+        <form id="predictionForm">
+            <div class="form-group">
+                <label for="dayOfYear">dayOfYear :</label>
+                <input type="number" id="dayOfYear" name="dayOfYear" required>
+            </div>
+            <div class="form-group">
+                <label for="Year">Year :</label>
+                <input type="number" id="Year" name="Year" required>
+            </div>
+            <div class="form-group">
+                <label for="Month">Month :</label>
+                <input type="number" id="Month" name="Month" required>
+            </div>
+            <div class="form-group">
+                <label for="Day">Day :</label>
+                <input type="number" id="Day" name="Day" required>
+            </div>
+            <div class="form-group">
+                <label for="StartHour">StartHour :</label>
+                <input type="number" id="StartHour" name="StartHour" required>
+            </div>
+            <div class="form-group">
+                <label for="EndHour">EndHour :</label>
+                <input type="number" id="EndHour" name="EndHour" required>
+            </div>
+            <div class="form-group">
+                <label for="dayName">dayName :</label>
+                <input type="number" id="dayName" name="dayName" required>
+            </div>
+            <div class="form-group">
+                <label for="monthName">monthName :</label>
+                <input type="number" id="monthName" name="monthName" required>
+            </div>
+            <div class="form-group">
+                <button type="button" onclick="makePrediction()">Predict</button>
+                <div id="predictionResult" style="margin-left: 10px;"></div>
+            </div>
+        </form>
+        <br>
+        <h4>Future prediction of a number of periods</h4>
+        <form id="futurePredictionForm">
+            <div class="form-group">
+                <label for="source">Source :</label>
+                <select id="source" name="source" required>
+                    <option value="solar">Solar</option>
+                    <option value="wind">Wind</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="model">Model:</label>
+                <select id="model" name="model" required>
+                    <option value="modele_lgbm">LightGBM</option>
+                    <option value="modele_catboost">CatBoost</option>
+                    <option value="modele_xgboost">XGBoost</option>
+                    <option value="modele_randomforest">RandomForest</option>
+                    <option value="modele_extratrees">ExtraTrees</option>
+                    <option value="modele_decisiontree">DecisionTree</option>
+                    <option value="modele_voting">Voting</option>
+                    <option value="modele_stacking">Stacking</option>
+                    <option value="modele_bagging_lgbm">Bagging LightGBM</option>
+                    <option value="modele_bagging_catboost">Bagging CatBoost</option>
+                    <option value="modele_bagging_xgboost">Bagging XGBoost</option>
+                    <option value="modele_bagging_randomforest">Bagging RandomForest</option>
+                    <option value="modele_bagging_extratrees">Bagging ExtraTrees</option>
+                    <option value="modele_bagging_decisiontree">Bagging DecisionTree</option>
+                    <option value="modele_bagging_bagging">Voting Stacking Bagging</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="numPeriods">Number of periods :</label>
+                <input type="number" id="numPeriods" name="numPeriods" required>
+            </div>
+            <div class="form-group">
+                <button type="button" onclick="makeFuturePrediction()">Predict Future</button>
+            </div>
+            <img src="{{ graph_path }}" id="futurePredictionResult">
+        </form>
+    </div>
+</body>
+<style>
+    .navbar {
+        box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+    }
+    body {
+        background-color: #1C2833;
+    }
+    .bg-custom {
+        background-color: #283747;
+    }
+    .container {
+        color: white;
+        margin-top: 3%;
+    }
+    .form-group {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px; /* Ajoutez une marge en bas pour espacer les groupes */
+    }
+    .form-group label {
+        width: 150px; /* Ajustez la largeur des labels selon vos besoins */
+        margin-right: 10px; /* Ajoutez une marge à droite des labels */
+    }
+</style>
+<script>
+    // function runScript() {
+    //     $("#status").text("Script en cours d'exécution...");
+    //     $.get("/load_energy_models", function(data) {
+    //         $("#status").text("Exécution du script terminée");
+    //     });
+    // }
+    function runScript() {
+        $("#status").text("Script en cours d'exécution...");
+        $.get("/load_energy_models")
+            .done(function() {
+                $("#status").text("Exécution du script terminée");
+            })
+        // .fail(function() {
+        //     $("#status").text("Erreur lors de l'exécution du script");
+        // });
+    }
+
+    async function makePrediction() {
+        // Récupérer les valeurs des champs d'entrée
+        const dayOfYear = parseInt(document.getElementById('dayOfYear').value);
+        const Year = parseInt(document.getElementById('Year').value);
+        const Month = parseInt(document.getElementById('Month').value);
+        const Day = parseInt(document.getElementById('Day').value);
+        const StartHour = parseInt(document.getElementById('StartHour').value);
+        const EndHour = parseInt(document.getElementById('EndHour').value);
+        const dayName = parseInt(document.getElementById('dayName').value);
+        const monthName = parseInt(document.getElementById('monthName').value);
+
+        try {
+            // Effectuer une requête AJAX pour envoyer les données au serveur
+            const response = await fetch('http://localhost:3000/energy/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    dayOfYear,
+                    Year,
+                    Month,
+                    Day,
+                    StartHour,
+                    EndHour,
+                    dayName,
+                    monthName
+                }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                console.error(`HTTP error! Status: ${response.status}, Message: ${data.error}`);
+            }
+
+            // Afficher le résultat de la prédiction dans une div
+            document.getElementById('predictionResult').innerHTML = `Prediction: ${data.prediction}`;
+        } catch (error) {
+            console.error('Error:', error.message);
+        }
+    }
+
+    async function makeFuturePrediction() {
+        const source = document.getElementById('source').value;
+        const model = document.getElementById('model').value;
+        const numPeriods = parseInt(document.getElementById('numPeriods').value);
+
+        try {
+            const response = await fetch('http://localhost:3000/energy/predict-future?source=${source}&model=${model}&numPeriods=${numPeriods}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    source,
+                    model,
+                    numPeriods
+                }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                console.error(`HTTP error! Status: ${response.status}, Message: ${data.error}`);
+            }
+
+            // Mettre à jour l'image sur la page avec le chemin du fichier image
+            // document.getElementById('futurePredictionResult').src = data.graph_path;
+            // Ajout d'un timestamp comme paramètre de requête pour que le navigateur ne récupère pas la version mise en cache
+            document.getElementById('futurePredictionResult').src = `${data.graph_path}?${Date.now()}`;
+        } catch (error) {
+            console.error('Error:', error.message);
+        }
+    }
+</script>
+</html>
