@@ -52,11 +52,15 @@ def predict():
             data['dayName'], data['monthName']
         ]
 
+        source = data.get('source')
+        model = data.get('model')
+        model_name = f'{model}_{source}'
+
         # Load the model
-        model = joblib.load(f'joblib/joblib_energy/modele_voting_solar.joblib')
+        loaded_model = joblib.load(f'joblib/joblib_energy/{model_name}.joblib')
 
         # Make predictions with the loaded model
-        prediction = model.predict([features])[0]
+        prediction = loaded_model.predict([features])[0]
 
         # Return the prediction in JSON format
         return jsonify({'prediction': prediction})
@@ -67,7 +71,7 @@ def predict():
         return jsonify({'error': 'Internal Server Error'}), 500
 
 
-@app.route('/energy/predict-future', methods=['POST'])
+@app.route('/energy/predict-future-by-periods', methods=['POST'])
 def predict_future():
     try:
         data = request.json

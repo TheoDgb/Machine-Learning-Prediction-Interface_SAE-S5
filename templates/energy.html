@@ -44,36 +44,63 @@
         <h4>Prediction by features</h4>
         <form id="predictionForm">
             <div class="form-group">
+                <label for="source">Source :</label>
+                <select id="source" name="source" required>
+                    <option value="solar">Solar</option>
+                    <option value="wind">Wind</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="model">Model :</label>
+                <select id="model" name="model" required>
+                    <option value="modele_lgbm">LightGBM</option>
+                    <option value="modele_catboost">CatBoost</option>
+                    <option value="modele_xgboost">XGBoost</option>
+                    <option value="modele_randomforest">RandomForest</option>
+                    <option value="modele_extratrees">ExtraTrees</option>
+                    <option value="modele_decisiontree">DecisionTree</option>
+                    <option value="modele_voting">Voting</option>
+                    <option value="modele_stacking">Stacking</option>
+                    <option value="modele_bagging_lgbm">Bagging LightGBM</option>
+                    <option value="modele_bagging_catboost">Bagging CatBoost</option>
+                    <option value="modele_bagging_xgboost">Bagging XGBoost</option>
+                    <option value="modele_bagging_randomforest">Bagging RandomForest</option>
+                    <option value="modele_bagging_extratrees">Bagging ExtraTrees</option>
+                    <option value="modele_bagging_decisiontree">Bagging DecisionTree</option>
+                    <option value="modele_bagging_bagging">Voting Stacking Bagging</option>
+                </select>
+            </div>
+            <div class="form-group">
                 <label for="dayOfYear">dayOfYear :</label>
-                <input type="number" id="dayOfYear" name="dayOfYear" required>
+                <input type="number" id="dayOfYear" name="dayOfYear" required value="204">
             </div>
             <div class="form-group">
                 <label for="Year">Year :</label>
-                <input type="number" id="Year" name="Year" required>
+                <input type="number" id="Year" name="Year" required value="2020">
             </div>
             <div class="form-group">
                 <label for="Month">Month :</label>
-                <input type="number" id="Month" name="Month" required>
+                <input type="number" id="Month" name="Month" required value="7">
             </div>
             <div class="form-group">
                 <label for="Day">Day :</label>
-                <input type="number" id="Day" name="Day" required>
+                <input type="number" id="Day" name="Day" required value="22">
             </div>
             <div class="form-group">
                 <label for="StartHour">StartHour :</label>
-                <input type="number" id="StartHour" name="StartHour" required>
+                <input type="number" id="StartHour" name="StartHour" required value="20">
             </div>
             <div class="form-group">
                 <label for="EndHour">EndHour :</label>
-                <input type="number" id="EndHour" name="EndHour" required>
+                <input type="number" id="EndHour" name="EndHour" required value="21">
             </div>
             <div class="form-group">
                 <label for="dayName">dayName :</label>
-                <input type="number" id="dayName" name="dayName" required>
+                <input type="number" id="dayName" name="dayName" required value="6">
             </div>
             <div class="form-group">
                 <label for="monthName">monthName :</label>
-                <input type="number" id="monthName" name="monthName" required>
+                <input type="number" id="monthName" name="monthName" required value="5">
             </div>
             <div class="form-group">
                 <button type="button" onclick="makePrediction()">Predict</button>
@@ -91,7 +118,7 @@
                 </select>
             </div>
             <div class="form-group">
-                <label for="model">Model:</label>
+                <label for="model">Model :</label>
                 <select id="model" name="model" required>
                     <option value="modele_lgbm">LightGBM</option>
                     <option value="modele_catboost">CatBoost</option>
@@ -115,7 +142,7 @@
                 <input type="number" id="numPeriods" name="numPeriods" required>
             </div>
             <div class="form-group">
-                <button type="button" onclick="makeFuturePrediction()">Predict future by periods</button>
+                <button type="button" onclick="makeFuturePredictionByPeriods()">Predict future by periods</button>
             </div>
             <img src="{{ graph_path }}" alt="Future prediction graph by periods :" id="futurePredictionResult">
         </form>
@@ -156,6 +183,8 @@
 
     async function makePrediction() {
         // Récupérer les valeurs des champs d'entrée
+        const source = document.getElementById('source').value;
+        const model = document.getElementById('model').value;
         const dayOfYear = parseInt(document.getElementById('dayOfYear').value);
         const Year = parseInt(document.getElementById('Year').value);
         const Month = parseInt(document.getElementById('Month').value);
@@ -167,12 +196,14 @@
 
         try {
             // Effectuer une requête AJAX pour envoyer les données au serveur
-            const response = await fetch('http://localhost:3000/energy/predict', {
+            const response = await fetch('http://localhost:3000/energy/predict?source=${source}&model=${model}', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
+                    source,
+                    model,
                     dayOfYear,
                     Year,
                     Month,
@@ -191,19 +222,19 @@
             }
 
             // Afficher le résultat de la prédiction dans une div
-            document.getElementById('predictionResult').innerHTML = `Prediction: ${data.prediction}`;
+            document.getElementById('predictionResult').innerHTML = `Prediction: ${data.prediction} MW`;
         } catch (error) {
             console.error('Error:', error.message);
         }
     }
 
-    async function makeFuturePrediction() {
+    async function makeFuturePredictionByPeriods() {
         const source = document.getElementById('source').value;
         const model = document.getElementById('model').value;
         const numPeriods = parseInt(document.getElementById('numPeriods').value);
 
         try {
-            const response = await fetch('http://localhost:3000/energy/predict-future?source=${source}&model=${model}&numPeriods=${numPeriods}', {
+            const response = await fetch('http://localhost:3000/energy/predict-future-by-periods?source=${source}&model=${model}&numPeriods=${numPeriods}', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
