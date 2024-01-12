@@ -19,8 +19,8 @@
                 <li class="nav-item">
                     <a class="nav-link" href="/">Home</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link active" href="/solarflare">Solar Flare</a>
+                <li class="nav-item active">
+                    <a class="nav-link" href="/solarflare">Solar Flare</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="/weather">Weather</a>
@@ -33,9 +33,108 @@
     </nav>
 
     <div class="container">
-        <h2>Solar Flare</h2>
+        <h2>Solar Flares</h2>
+        <p>
+            The dataset pertains to observations made by RHESSI, a NASA solar eruption observatory launched in 2002. Its mission focuses on studying particle acceleration and energy release during solar eruptions. The dataset comprises 113,942 lines of data collected between 2002 and 2016.
+        </p>
+    
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 img-container">
+                    <img src="static/images/solarflare/solarflare.jpg" alt="Image 1" class="img-fluid">
+                </div>
+                <div class="col-md-6 img-container">
+                    <img src="static/images/solarflare/Rhessi.jpg" alt="Image 2" class="img-fluid">
+                </div>
+            </div>
+        </div>        
         <br>
 
+        <h4>Dataset Features:</h4>
+        <ul>
+            <li><strong>flare:</strong> Identifier or label of the solar flare.</li>
+            <li><strong>start.date:</strong> Start date of the solar flare.</li>
+            <li><strong>start.time:</strong> Start time of the solar flare.</li>
+            <li><strong>peak:</strong> Date and time of the peak intensity of the solar flare.</li>
+            <li><strong>end:</strong> Date and time of the end of the solar flare.</li>
+            <li><strong>duration.s:</strong> Total duration of the solar flare in seconds.</li>
+            <li><strong>peak.c/s:</strong> Maximum counting rate (peak) in counts per second during the solar flare.</li>
+            <li><strong>total.counts:</strong> Total number of counts in the energy range of 6 to 12 keV, integrated over the duration of the flare, including background noise.</li>
+            <li><strong>energy.kev:</strong> The highest energy band in which the flare was observed, measured in kiloelectronvolts (keV).</li>
+            <li><strong>x.pos.asec:</strong> Position in arcseconds along the x-axis.</li>
+            <li><strong>y.pos.asec:</strong> Position in arcseconds along the y-axis.</li>
+            <li><strong>radial:</strong> Radial distance of the flare's position from the center of the Sun.</li>
+            <li><strong>active.region.ar:</strong> Identification number of the nearest active region, if available.</li>
+            <li><strong>flag.1 to flag.5:</strong> Flags indicating various conditions during the solar flare, such as attenuation states, decimation, space eclipse, data gaps, etc.</li>
+            <br>
+            <p>
+                The goal during my work was to predict the peak.c/s, in other words, the maximum photon emission of a solar flare (its power). The features used for this prediction were:
+                <code>X = data[['Year', 'Month', 'Day', 'Hour', 'Minute', 'duration.s', 'total.counts', 'x.pos.asec', 'y.pos.asec', 'radial', 'active.region.ar']]</code>.
+            </p>
+        </ul>
+    </div>
+    
+
+    <div class="container">
+        <h4>Prediction by features</h4>
+        <form id="predictionForm">
+            <div class="form-group">
+                <label for="Year">Year :</label>
+                <input type="number" id="Year" name="Year" required>
+            </div>
+            <div class="form-group">
+                <label for="Month">Month :</label>
+                <input type="number" id="Month" name="Month" required>
+            </div>
+            <div class="form-group">
+                <label for="Day">Day :</label>
+                <input type="number" id="Day" name="Day" required>
+            </div>
+            <div class="form-group">
+                <label for="Hour">Hour :</label>
+                <input type="number" id="Hour" name="Hour" required>
+            </div>
+            <div class="form-group">
+                <label for="Minute">Minute :</label>
+                <input type="number" id="Minute" name="Minute" required>
+            </div>
+            <div class="form-group">
+                <label for="duration_s">Duration (s) :</label>
+                <input type="number" id="duration_s" name="duration_s" required>
+            </div>
+            <div class="form-group">
+                <label for="total_counts">Total Counts :</label>
+                <input type="number" id="total_counts" name="total_counts" required>
+            </div>
+            <div class="form-group">
+                <label for="x_pos_asec">X Position (asec) :</label>
+                <input type="number" id="x_pos_asec" name="x_pos_asec" required>
+            </div>
+            <div class="form-group">
+                <label for="y_pos_asec">Y Position (asec) :</label>
+                <input type="number" id="y_pos_asec" name="y_pos_asec" required>
+            </div>
+            <div class="form-group">
+                <label for="radial">Radial :</label>
+                <input type="number" id="radial" name="radial" required>
+            </div>
+            <div class="form-group">
+                <label for="active_region_ar">Active Region AR :</label>
+                <input type="number" id="active_region_ar" name="active_region_ar" required>
+            </div>
+            <div class="form-group">
+                <label for="modelSelection">Select Model:</label>
+                <select id="modelSelection" name="modelSelection">
+                    <option value="gradientboost">Gradient Boosting</option>
+                    <option value="randomforest">Random Forest</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <button type="button" onclick="makePrediction()">Predict</button>
+                <div id="predictionResult" style="margin-left: 10px;"></div>
+            </div>
+        </form>
+        <div id="predictionResult"></div>
     </div>
 </body>
 <style>
@@ -52,8 +151,75 @@
         color: white;
         margin-top: 3%;
     }
+    .form-group {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px; /* Ajoutez une marge en bas pour espacer les groupes */
+    }
+    .form-group label {
+        width: 150px; /* Ajustez la largeur des labels selon vos besoins */
+        margin-right: 10px; /* Ajoutez une marge à droite des labels */
+    }
+    .img-container {
+        overflow: hidden; /* Hide any overflow if images exceed the set height */
+    }
+
+    .img-container img {
+        width: 100%; /* Make the images take 100% of the container width */
+        height: 300px; /* Set the height to a fixed value (adjust as needed) */
+        object-fit: cover; /* Maintain the aspect ratio and cover the container */
+    }
 </style>
 <script>
+    async function makePrediction() {
+        // Récupérer les valeurs des champs d'entrée
+        const Year = document.getElementById('Year').value;
+        const Month = document.getElementById('Month').value;
+        const Day = document.getElementById('Day').value;
+        const Hour = document.getElementById('Hour').value;
+        const Minute = document.getElementById('Minute').value;
+        const duration_s = document.getElementById('duration_s').value;
+        const total_counts = document.getElementById('total_counts').value;
+        const x_pos_asec = document.getElementById('x_pos_asec').value;
+        const y_pos_asec = document.getElementById('y_pos_asec').value;
+        const radial = document.getElementById('radial').value;
+        const active_region_ar = document.getElementById('active_region_ar').value;
+        const modelSelection = document.getElementById('modelSelection').value;
 
+        try {
+            // Effectuer une requête AJAX pour envoyer les données au serveur
+            const response = await fetch('http://localhost:3000/solarflare/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    Year,
+                    Month,
+                    Day,
+                    Hour,
+                    Minute,
+                    duration_s,
+                    total_counts,
+                    x_pos_asec,
+                    y_pos_asec,
+                    radial,
+                    active_region_ar,
+                    model: modelSelection
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            // Afficher le résultat de la prédiction dans une div
+            document.getElementById('predictionResult').innerHTML = `Prediction: ${data.prediction}`;
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    }
 </script>
 </html>
