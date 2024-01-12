@@ -153,23 +153,4 @@ elif source == 'wind':
     plt.ylabel('Production (MWh)')
     plt.title('Production Wind en fonction de la Date et de l\'Heure ('+model+')')
     plt.legend()
-#     plt.show()
     plt.savefig('static/images/energy/'+source+'_'+model+'.png')
-
-
-
-# def display_pred_future(production_filtered_energy, X_test, y_pred, X_future, y_future_pred, source_name, model):
-#
-#     # Ajouter les prédictions futures au graphique
-#     plt.figure(figsize=(10, 6))
-#     production_filtered_energy['Production'].plot(label='Production réelle')
-#     plt.plot(X_test.index, y_pred, label='Prédictions de test', color='lightgreen')
-#     plt.plot(X_future.index, y_future_pred, label='Prédictions futures', color='blue')  # Ajout des prédictions futures
-#     plt.xlabel('Date and Hour')
-#     plt.ylabel('Production (MWh)')
-#     plt.title('Production '+source_name+' en fonction de la Date et de l\'Heure (modèle '+model+')')
-#     plt.legend()
-#     plt.show()
-#
-# display_pred_future(production_filtered_energy_solar, X_test_solar, y_pred_solar_stacking, X_future_solar, y_future_pred_solar, 'Solar', 'Stacking ensemble')
-# display_pred_future(production_filtered_energy_wind, X_test_wind, y_pred_wind_stacking, X_future_wind, y_future_pred_wind, 'Wind', 'Stacking ensemble')
