@@ -36,10 +36,92 @@
         <h2>Energy Production</h2>
         <br>
         <h4>Data presentation</h4>
-        Kaggle : <a href="https://www.kaggle.com/datasets/henriupton/wind-solar-electricity-production" target="_blank">wind-solar-electricity-production</a>
-        <br>Daily Renewable Intermittent Electricity Generation in France (Solar and Wind) since 2020 from July 22, 2020, to June 30, 2023.
-        <br>Regression : Predicting continuous variables (continuous production variables)
-        <br>Supervised learning : For each example, the value is known
+        <div class="row">
+            <div class="col-6">
+                CSV from Kaggle : <a href="https://www.kaggle.com/datasets/henriupton/wind-solar-electricity-production" target="_blank">wind-solar-electricity-production</a>
+                <br><br>Daily Renewable Intermittent Electricity Generation in France
+                <br>(Solar and Wind) since 2020 from July 22, 2020, to June 30, 2023
+                <br><br>Regression : Predicting continuous variables (continuous production variables)
+                <br>Supervised learning : For each example, the value is known
+                <br><br>59806 rows and 8 columns
+            </div>
+            <div class="col-6">
+                <table>
+                    <tr>
+                        <th>Column</th>
+                        <th>Description</th>
+                    </tr>
+                    <tr>
+                        <td>Date and Hour</td>
+                        <td>Format: datetime64, serves as the index of the dataframe</td>
+                    </tr>
+                    <tr>
+                        <td>Date</td>
+                        <td>Date of production</td>
+                    </tr>
+                    <tr>
+                        <td>StartHour / EndHour</td>
+                        <td>Production time range</td>
+                    </tr>
+                    <tr>
+                        <td>Source</td>
+                        <td>Differentiates between 'solar' or 'wind' production</td>
+                    </tr>
+                    <tr>
+                        <td>Production</td>
+                        <td>Energy production in MWh</td>
+                    </tr>
+                    <tr>
+                        <td>dayOfYear</td>
+                        <td>Day of the year</td>
+                    </tr>
+                    <tr>
+                        <td>dayName</td>
+                        <td>Day of the week</td>
+                    </tr>
+                    <tr>
+                        <td>monthName</td>
+                        <td>Month of the year</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <h4>Model results</h4>
+        <div class="row">
+            <div class="col-6">
+                <table>
+                    <tr>
+                        {% for col in solar_data.columns %}
+                        <th>{{ col }}</th>
+                        {% endfor %}
+                    </tr>
+                    {% for index, row in solar_data.iterrows() %}
+                    <tr>
+                        {% for value in row %}
+                        <td>{{ value }}</td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+            <div class="col-6">
+                <table>
+                    <tr>
+                        {% for col in wind_data.columns %}
+                        <th>{{ col }}</th>
+                        {% endfor %}
+                    </tr>
+                    {% for index, row in wind_data.iterrows() %}
+                    <tr>
+                        {% for value in row %}
+                        <td>{{ value }}</td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+
         <img src="static/images/energy/solar_wind_presentation_graph.png" alt="solar_wind_presentation_graph.png">
         <br><br>
         <h4>Load prediction models</h4>
@@ -178,6 +260,19 @@
         width: 150px; /* Ajustez la largeur des labels selon vos besoins */
         margin-right: 10px; /* Ajoutez une marge à droite des labels */
     }
+    table {
+        border-collapse: collapse;
+        width: 100%;
+        margin-bottom: 20px; /* Ajout d'une marge en bas du tableau */
+    }
+    th, td {
+        border: 1px solid #dddddd;
+        text-align: left;
+        padding: 8px;
+    }
+    th {
+        background-color: #a2a2a2;
+    }
 </style>
 <script>
     function runScript() {
@@ -187,6 +282,38 @@
                 $("#status").text("Exécution du script terminée");
             })
     }
+
+    // Add this to your existing JavaScript code
+    document.addEventListener("DOMContentLoaded", function () {
+        // Fetch CSV file
+        fetch('scripts/energy/res_models_solar.csv')
+            .then(response => response.text())
+            .then(csvData => {
+                // Parse CSV data
+                const rows = Papa.parse(csvData, { header: true }).data;
+
+                // Create table headers
+                const tableHeaders = Object.keys(rows[0]);
+                const thead = document.getElementById('csvTable').getElementsByTagName('thead')[0];
+                const headerRow = thead.insertRow();
+                tableHeaders.forEach(header => {
+                    const th = document.createElement('th');
+                    th.textContent = header;
+                    headerRow.appendChild(th);
+                });
+
+                // Create table rows
+                const tbody = document.getElementById('csvTable').getElementsByTagName('tbody')[0];
+                rows.forEach(row => {
+                    const tr = tbody.insertRow();
+                    tableHeaders.forEach(header => {
+                        const cell = tr.insertCell();
+                        cell.textContent = row[header];
+                    });
+                });
+            })
+            .catch(error => console.error('Error fetching CSV file:', error));
+    });
 
     async function makePrediction() {
         // Récupérer les valeurs des champs d'entrée

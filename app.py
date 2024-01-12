@@ -4,6 +4,7 @@ from flask_cors import CORS
 import subprocess
 import json
 import os
+import pandas as pd
 
 app = Flask(__name__)
 CORS(app)
@@ -29,7 +30,11 @@ def energy_home():
     if not os.path.exists('static/images/energy/solar_wind_presentation_graph.png'):
         subprocess.run(['python3', 'scripts/energy/solarwindpresentation.py'])
 
-    return render_template('energy.html')
+    # Charger les fichiers CSV
+    solar_data = pd.read_csv('scripts/energy/res_models_solar.csv')
+    wind_data = pd.read_csv('scripts/energy/res_models_wind.csv')
+
+    return render_template('energy.html', solar_data=solar_data, wind_data=wind_data)
 
 
 @app.route('/load_energy_models')
