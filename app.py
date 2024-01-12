@@ -19,6 +19,42 @@ def index():
 def solarflare_home():
     return render_template('solarflare.html')
 
+@app.route('/solarflare/predict', methods=['POST'])
+def predictsolar():
+    try:
+        model_name = request.json.get('model')
+
+        # Load the model based on the selected model name
+        if model_name == 'gradientboost':
+            model = joblib.load('joblib/joblib_solarflare/gb_model.joblib')
+        elif model_name == 'randomforest':
+            model = joblib.load('joblib/joblib_solarflare/rf_reg_model.joblib')
+        else:
+            return jsonify({'error': 'Invalid model selection'}), 400
+
+        # Extract features from the data
+        data = request.json
+        features = [
+            data['Year'], data['Month'], data['Day'],
+            data['Hour'], data['Minute'], data['duration_s'],
+            data['total_counts'], data['x_pos_asec'], data['y_pos_asec'],
+            data['radial'], data['active_region_ar']
+        ]
+
+        # Convert features to numpy array (assuming your model expects a numpy array)
+        features = np.array(features).reshape(1, -1)
+
+        # Make predictions with the loaded model
+        prediction = model.predict(features)
+
+        # Return the prediction as JSON
+        return jsonify({'prediction': prediction.tolist()})
+
+    except Exception as e:
+        print(f'Error in predictsolar route: {str(e)}')
+        print(f'Type of exception: {type(e)}')
+        print(f'Exception args: {e.args}')
+        return jsonify({'error': 'Internal Server Error'}), 500
 
 @app.route('/weather')
 def weather_home():
