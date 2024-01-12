@@ -17,11 +17,16 @@ HTML/CSS/Bootstrap/Flask/JavaScript/Python/joblib/scikit-learn/Pandas/NumPy/Matp
     Nicolas : Initialisation du projet flask (création d'une première route et d'un premier template),
     Utilisation de joblib pour charger un modèle et l'utiliser afin de faire une prédiction via des caractéristiques données en paramètre depuis une page html
 
-### 9-10-11/01/2024
+### 9-10/01/2024
     Théo : Création des routes / templates / de la structure du projet pour les 3 sujets,
     Réalisation du front avec Bootstrap,
-    Script qui enregistre les modèles en joblib
+    Bouton permettant de lancer un script qui enregistre les modèles en joblib
     Création d'une requête qui envoie en paramètre la source, le modèle ainsi qu'un nombre de période choisi, exécute un script python qui charge le modèle choisi, fait des prédictions et créer un graphique. Ce graphique est ensuite affiché sur la page html
+
+### 11-12/01/2024
+    Nicolas : page Solar Flares => affichage des informations concernant les données utilisées, ajout d'une sélection de modèle pour réaliser une prédiction en fonction des caractéristiques données par l'utilisateur, règlage des problèmes de compatibilité entre les modèles et Flask
+    Hugo : page Weather => affichage des informations concernant les données utilisées, . . .
+    Théo : page Energy Production => affichage des informations concernant les données utilisées, description du dataset, tableau des résultats des modèles RMSE / R-squared pour les deux sources "solar" et "wind", ajout d'un graphique présentant les données, rédaction des documents demandés dans le README.md (Suivi du projet / Architecture du projet / Indications générales de mise en œuvre), règlage des problèmes de compatibilité entre les modèles et Flask
 
 ## Architecture du projet
 ### Français

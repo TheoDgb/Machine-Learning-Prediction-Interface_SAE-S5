@@ -1,10 +1,12 @@
 from flask import Flask, request, jsonify, render_template
-import joblib
 from flask_cors import CORS
+import joblib
 import subprocess
 import json
 import os
 import pandas as pd
+import numpy as np
+
 
 app = Flask(__name__)
 CORS(app)
@@ -18,6 +20,7 @@ def index():
 @app.route('/solarflare')
 def solarflare_home():
     return render_template('solarflare.html')
+
 
 @app.route('/solarflare/predict', methods=['POST'])
 def predictsolar():
@@ -55,6 +58,7 @@ def predictsolar():
         print(f'Type of exception: {type(e)}')
         print(f'Exception args: {e.args}')
         return jsonify({'error': 'Internal Server Error'}), 500
+
 
 @app.route('/weather')
 def weather_home():

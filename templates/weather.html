@@ -9,34 +9,113 @@
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-custom">
-        <a class="navbar-brand" href="#">Machine Learning Prediction</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav">
-                <li class="nav-item">
-                    <a class="nav-link" href="/">Home</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/solarflare">Solar Flare</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link active" href="/weather">Weather</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/energy">Energy Production</a>
-                </li>
-            </ul>
-        </div>
-    </nav>
-
-    <div class="container">
-        <h2>Weather</h2>
-        <br>
-
+<nav class="navbar navbar-expand-lg navbar-dark bg-custom">
+    <a class="navbar-brand" href="#">Machine Learning Prediction</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+            <li class="nav-item">
+                <a class="nav-link" href="/">Home</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/solarflare">Solar Flare</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/weather">Weather</a>
+            </li>
+            <li class="nav-item active">
+                <a class="nav-link" href="/energy">Energy Production</a>
+            </li>
+        </ul>
     </div>
+</nav>
+
+<div class="container">
+    <h2>Weather prediction</h2>
+    <br>
+    <h4>Data presentation</h4>
+    <div class="row">
+        <div class="col-6">
+            <br>Weather in France
+            <br>Weather since 2020 from 2023
+            <br><br>Regression : Predicting continuous variables (continuous production variables)
+            <br>Supervised learning : For each example, the value is known
+            <br><br>150000 rows and 77 columns
+        </div>
+        <div class="col-6">
+            <table>
+                <tr>
+                    <th>Important Column</th>
+                    <th>Description</th>
+                </tr>
+                <tr>
+                    <td>Date and Hour</td>
+                    <td>Format: datetime64, serves as the index of the dataframe</td>
+                </tr>
+                <tr>
+                    <td>Temperature</td>
+                    <td>Temperature</td>
+                </tr>
+                <tr>
+                    <td>Humidity</td>
+                    <td>Humidity</td>
+                </tr>
+                <tr>
+                    <td>Departement</td>
+                    <td>Departement where the data have been recorded</td>
+                </tr>
+                <tr>
+                    <td>Type of weather</td>
+                    <td> The different types of weather</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <h4>Model results</h4>
+    <div class="row">
+        <div class="col-6">
+        </div>
+        <div class="col-6">
+        </div>
+    </div>
+
+    <br><br>
+    <br>
+    <h4>Prediction by features</h4>
+    <form id="predictionForm">
+        <div class="form-group">
+            <label for="Day">Date (format aaaa-mm-jj) :</label>
+            <input type="text" id="Date" name="Date" required>
+        </div>
+        <div class="form-group">
+            <label for="Humidity">Humidity :</label>
+            <input type="number" id="Humidity" name="Humidity" required>
+        </div>
+        <div class="form-group">
+            <label for="Pression">Pression atmosphérique :</label>
+            <input type="number" id="Pression" name="Pression" required>
+        </div>
+        <label for="dateInput">Date (aaaa-mm-jj):</label>
+        <input type="text" id="dateInput" name="dateInput" placeholder="Ex. 2022-01-12" required>
+        <button type="button" onclick="convertDate()">Convertir en Date</button>
+        <div class="form-group">
+            <label for="model">Model :</label>
+            <select id="model" name="model" required>
+                <option value="modele_classification_random_forest">Classification random forest</option>
+                <option value="modele_random_forest">Random forest</option>
+                <option value="modele_regression_lineaire">Regression lineaire</option>
+                <option value="modele_stacked_regressor">Stacked regressor</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <button type="button" onclick="makePrediction()">Predict</button>
+            <div id="predictionResult" style="margin-left: 10px;"></div>
+        </div>
+    </form>
+    <br>
+</div>
 </body>
 <style>
     .navbar {
@@ -52,8 +131,80 @@
         color: white;
         margin-top: 3%;
     }
+    .form-group {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+    .form-group label {
+        width: 150px;
+        margin-right: 10px;
+    }
+    table {
+        border-collapse: collapse;
+        width: 100%;
+        margin-bottom: 20px;
+    }
+    th, td {
+        border: 1px solid #dddddd;
+        text-align: left;
+        padding: 8px;
+    }
+    th {
+        background-color: #a2a2a2;
+    }
 </style>
 <script>
+    async function makePrediction() {
+        // Récupérer les valeurs des champs d'entrée
+        const Date = document.getElementById('Date').value;
+        const Humidity = document.getElementById('Humidity').value;
+        const Pression = document.getElementById('Pression').value;
+        const modelSelection = document.getElementById('modelSelection').value;
 
+        try {
+            // Effectuer une requête AJAX pour envoyer les données au serveur
+            const response = await fetch('http://localhost:3000/weather/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    Date,
+                    Pression,
+                    Humidity,
+                    model: modelSelection
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            // Afficher le résultat de la prédiction dans une div
+            document.getElementById('predictionResult').innerHTML = `Prediction: ${data.prediction}`;
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    }
+
+    function convertDate() {
+        // Obtenir la valeur du champ de texte
+        var dateString = document.getElementById("dateInput").value;
+
+        // Convertir la chaîne en objet Date
+        var dateObject = new Date(dateString);
+
+        // Vérifier si la conversion a réussi
+        if (!isNaN(dateObject.getTime())) {
+            // Afficher la date convertie dans la console (vous pouvez faire autre chose avec la date ici)
+            console.log("Date convertie :", dateObject);
+        } else {
+            // Afficher un message d'erreur si la conversion échoue
+            console.error("Format de date invalide !");
+        }
+    }
 </script>
 </html>
