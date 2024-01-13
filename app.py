@@ -65,6 +65,48 @@ def weather_home():
     return render_template('weather.html')
 
 
+@app.route('/weather/predict', methods=['POST'])
+def predictweather():
+    try:
+        model_name = request.json.get('model')
+
+        # Load the model based on the selected model name
+        if model_name == 'modele_classification_random_forest':
+            model = joblib.load('joblib/joblib_weather/classification_random_forest.joblib')
+        elif model_name == 'modele_random_forest':
+            model = joblib.load('joblib/joblib_solarflare/Random_Forest.joblib')
+        elif model_name == 'modele_regression_lineaire':
+            model = joblib.load('joblib/joblib_weather/regression_lineaire.joblib')
+        elif model_name == 'modele_stacked_regressor':
+            model = joblib.load('joblib/joblib_weather/stacked_regressor.joblib')
+        elif model_name == 'modele_ridge':
+            model = joblib.load('joblib/joblib_weather/ridge_model.joblib')
+        else:
+            return jsonify({'error': 'Invalid model selection'}), 400
+
+
+        data = request.json
+        features = [
+           data['Year'], data['Month'], data['Day'],
+           data['Humidity'], data['Pression']
+        ]
+
+        # Convert features to numpy array (assuming your model expects a numpy array)
+        features = np.array(features).reshape(1, -1)
+
+        # Make predictions with the loaded model
+        prediction = model.predict(features)
+
+        # Return the prediction as JSON
+        return jsonify({'prediction': prediction.tolist()})
+
+    except Exception as e:
+        print(f'Error in predictweather route: {str(e)}')
+        print(f'Type of exception: {type(e)}')
+        print(f'Exception args: {e.args}')
+        return jsonify({'error': 'Internal Server Error'}), 500
+
+
 @app.route('/energy')
 def energy_home():
     if not os.path.exists('static/images/energy/solar_wind_presentation_graph.png'):
@@ -128,7 +170,9 @@ def predict_future():
         source = data.get('source')
         model = data.get('model')
         num_periods = int(data.get('numPeriods'))
-
+        print(f'num_periods: {num_periods}')
+        print(f'source: {source}')
+        print(f'model: {model}')
         model_name = f'{model}_{source}'
         loaded_model = joblib.load(f'joblib/joblib_energy/{model_name}.joblib')
 

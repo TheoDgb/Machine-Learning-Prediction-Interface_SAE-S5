@@ -22,10 +22,10 @@
             <li class="nav-item">
                 <a class="nav-link" href="/solarflare">Solar Flare</a>
             </li>
-            <li class="nav-item">
+            <li class="nav-item active">
                 <a class="nav-link" href="/weather">Weather</a>
             </li>
-            <li class="nav-item active">
+            <li class="nav-item">
                 <a class="nav-link" href="/energy">Energy Production</a>
             </li>
         </ul>
@@ -72,22 +72,80 @@
                 </tr>
             </table>
         </div>
-    </div>
-    <h4>Model results</h4>
-    <div class="row">
-        <div class="col-6">
+        <div>
+            <div>
+                <table>
+                    <tr>
+                        <th>Model</th>
+                        <th>MSE</th>
+                        <th>R²</th>
+                        <th>Acc</th>
+                    </tr>
+                    <tr>
+                        <td>Random Forest</td>
+                        <td>9.52</td>
+                        <td>0.81</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>Random Forest Regressor</td>
+                        <td>10.03</td>
+                        <td>0.76</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>Classification Random Forest</td>
+                        <td></td>
+                        <td></td>
+                        <td>0.98</td>
+                    </tr>
+                    <tr>
+                        <td>Stacking Regressor </td>
+                        <td>11.71</td>
+                        <td>0.81</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>Stacking Classifier</td>
+                        <td></td>
+                        <td></td>
+                        <td>0.97</td>
+                    </tr>
+                    <tr>
+                        <td>Model Stacking Regressor</td>
+                        <td>11.75</td>
+                        <td>0.7</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>Model Stacked Classifier</td>
+                        <td>6.1</td>
+                        <td>0.91</td>
+                        <td></td>
+                    </tr>
+                </table>
+            </div>
+            <div>
+                <div class="col-md-12 img-container">
+                    <img src="/static/images/weather/temp.png" alt="Image 1" class="img-fluid">
+                </div>
+            </div>
         </div>
-        <div class="col-6">
-        </div>
     </div>
-
     <br><br>
-    <br>
     <h4>Prediction by features</h4>
     <form id="predictionForm">
         <div class="form-group">
-            <label for="Day">Date (format aaaa-mm-jj) :</label>
-            <input type="text" id="Date" name="Date" required>
+            <label for="Day">Day :</label>
+            <input type="number" id="Day" name="Day" required>
+        </div>
+        <div class="form-group">
+            <label for="Month">Month :</label>
+            <input type="number" id="Month" name="Month" required>
+        </div>
+        <div class="form-group">
+            <label for="Year">Year :</label>
+            <input type="number" id="Year" name="Year" required>
         </div>
         <div class="form-group">
             <label for="Humidity">Humidity :</label>
@@ -97,9 +155,6 @@
             <label for="Pression">Pression atmosphérique :</label>
             <input type="number" id="Pression" name="Pression" required>
         </div>
-        <label for="dateInput">Date (aaaa-mm-jj):</label>
-        <input type="text" id="dateInput" name="dateInput" placeholder="Ex. 2022-01-12" required>
-        <button type="button" onclick="convertDate()">Convertir en Date</button>
         <div class="form-group">
             <label for="model">Model :</label>
             <select id="model" name="model" required>
@@ -107,6 +162,7 @@
                 <option value="modele_random_forest">Random forest</option>
                 <option value="modele_regression_lineaire">Regression lineaire</option>
                 <option value="modele_stacked_regressor">Stacked regressor</option>
+                <option value="modele_ridge">Ridge</option>
             </select>
         </div>
         <div class="form-group">
@@ -134,16 +190,16 @@
     .form-group {
         display: flex;
         align-items: center;
-        margin-bottom: 10px;
+        margin-bottom: 10px; /* Ajoutez une marge en bas pour espacer les groupes */
     }
     .form-group label {
-        width: 150px;
-        margin-right: 10px;
+        width: 150px; /* Ajustez la largeur des labels selon vos besoins */
+        margin-right: 10px; /* Ajoutez une marge à droite des labels */
     }
     table {
         border-collapse: collapse;
         width: 100%;
-        margin-bottom: 20px;
+        margin-bottom: 20px; /* Ajout d'une marge en bas du tableau */
     }
     th, td {
         border: 1px solid #dddddd;
@@ -154,10 +210,13 @@
         background-color: #a2a2a2;
     }
 </style>
+
 <script>
     async function makePrediction() {
         // Récupérer les valeurs des champs d'entrée
-        const Date = document.getElementById('Date').value;
+        const Day = document.getElementById('Day').value;
+        const Month = document.getElementById('Month').value;
+        const Year = document.getElementById('Year').value;
         const Humidity = document.getElementById('Humidity').value;
         const Pression = document.getElementById('Pression').value;
         const modelSelection = document.getElementById('modelSelection').value;
@@ -170,7 +229,9 @@
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    Date,
+                    Day,
+                    Month,
+                    Year,
                     Pression,
                     Humidity,
                     model: modelSelection
@@ -187,23 +248,6 @@
             document.getElementById('predictionResult').innerHTML = `Prediction: ${data.prediction}`;
         } catch (error) {
             console.error('Error:', error);
-        }
-    }
-
-    function convertDate() {
-        // Obtenir la valeur du champ de texte
-        var dateString = document.getElementById("dateInput").value;
-
-        // Convertir la chaîne en objet Date
-        var dateObject = new Date(dateString);
-
-        // Vérifier si la conversion a réussi
-        if (!isNaN(dateObject.getTime())) {
-            // Afficher la date convertie dans la console (vous pouvez faire autre chose avec la date ici)
-            console.log("Date convertie :", dateObject);
-        } else {
-            // Afficher un message d'erreur si la conversion échoue
-            console.error("Format de date invalide !");
         }
     }
 </script>

@@ -59,6 +59,11 @@ HTML/CSS/Bootstrap/Flask/JavaScript/Python/joblib/scikit-learn/Pandas/NumPy/Matp
 
 ## Indications générales de mise en œuvre
 ### Français
+#### Intallation des bonnes versions NumPy / SckiKit-Learn
+    pip install --upgrade numpy==1.23.1
+    pip install --upgrade scikit-learn==1.3.2
+    pip install --upgrade joblib==1.3.2
+
 #### Démarrer l'interface
     python3 app.py
 #### Avant l'utilisation des formulaires de requêtes pour chaque sujet
@@ -68,6 +73,10 @@ HTML/CSS/Bootstrap/Flask/JavaScript/Python/joblib/scikit-learn/Pandas/NumPy/Matp
 #### Sélectionner / Définir les caractéristiques pour la requête choisie avant de l'exécuter
 
 ### English
+#### Installing the correct versions of NumPy / SckiKit-Learn
+    pip install --upgrade numpy==1.23.1
+    pip install --upgrade scikit-learn==1.3.2
+    pip install --upgrade joblib==1.3.2
 #### Starting the interface
     python3 app.py
 #### Before using the request forms for each subject

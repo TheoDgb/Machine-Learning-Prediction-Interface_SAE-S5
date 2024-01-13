@@ -200,15 +200,15 @@
         <h4>Future prediction of a number of periods</h4>
         <form id="futurePredictionForm">
             <div class="form-group">
-                <label for="source">Source :</label>
-                <select id="source" name="source" required>
+                <label for="sourcePrediction">Source :</label>
+                <select id="sourcePrediction" name="source" required>
                     <option value="solar">Solar</option>
                     <option value="wind">Wind</option>
                 </select>
             </div>
             <div class="form-group">
-                <label for="model">Model :</label>
-                <select id="model" name="model" required>
+                <label for="modelPrediction">Model :</label>
+                <select id="modelPrediction" name="model" required>
                     <option value="modele_lgbm">LightGBM</option>
                     <option value="modele_catboost">CatBoost</option>
                     <option value="modele_xgboost">XGBoost</option>
@@ -329,7 +329,7 @@
 
         try {
             // Effectuer une requête AJAX pour envoyer les données au serveur
-            const response = await fetch('http://localhost:3000/energy/predict?source=${source}&model=${model}', {
+            const response = await fetch(`http://localhost:3000/energy/predict?source=${source}&model=${model}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -362,13 +362,13 @@
     }
 
     async function makeFuturePredictionByPeriods() {
-        const source = document.getElementById('source').value;
-        const model = document.getElementById('model').value;
+        const source = document.getElementById('sourcePrediction').value;
+        const model = document.getElementById('modelPrediction').value;
         const numPeriods = parseInt(document.getElementById('numPeriods').value);
 
         try {
-            const response = await fetch('http://localhost:3000/energy/predict-future-by-periods?source=${source}&model=${model}&numPeriods=${numPeriods}', {
-                method: 'POST',
+            const response = await fetch(`http://localhost:3000/energy/predict-future-by-periods?source=${source}&model=${model}&numPeriods=${numPeriods}`, {
+                    method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },

@@ -17,6 +17,20 @@ production_fr_df = pd.read_csv('scripts/energy/intermittent-renewables-productio
     dtype=CONFIG.NAMES_DTYPES
     )
 
+# plt.figure(figsize=(10, 6))
+#
+# # Tracer la production éolienne en bleu et solaire en rouge
+# production_fr_df[production_fr_df['Source'] == 'Wind']['Production'].plot(label='Wind Production', color='blue')
+# production_fr_df[production_fr_df['Source'] == 'Solar']['Production'].plot(label='Solar Production', color='red')
+#
+# plt.xlabel('Date and Hour')
+# plt.ylabel('Production (MWh)')
+# plt.title('Production en fonction de la Date et de l\'Heure')
+# plt.legend()
+# plt.show()
+# A ENREGISTRER ET AFFICHER SUR L INTERFACE
+
+
 
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
@@ -129,6 +143,7 @@ from sklearn.ensemble import ExtraTreesRegressor
 from sklearn.tree import DecisionTreeRegressor
 
 def train_and_evaluate_models(X_train, X_test, y_train, y_test, source):
+    base_directory = "joblib/joblib_energy"
 
     # Entraînement du modèle LightGBM avec recherche bayesian (tuning)
     lgbm_model = LGBMRegressor(force_col_wise=True, verbose=0, random_state=42)
@@ -145,6 +160,8 @@ def train_and_evaluate_models(X_train, X_test, y_train, y_test, source):
                                scoring='neg_mean_squared_error', cv=5, n_iter=5,
                                return_train_score=False, refit=True, random_state=42)
     bayes_lgbm.fit(X_train, y_train)
+    joblib.dump(bayes_lgbm.best_estimator_, f'{base_directory}/modele_lgbm_{source}.joblib')
+    print("Modèle LightGBM "+source+" sauvegardé")
 
     # Entraînement du modèle CatBoost avec recherche bayesian (tuning)
     catboost_model = CatBoostRegressor(verbose=0, random_state=42)
@@ -157,22 +174,45 @@ def train_and_evaluate_models(X_train, X_test, y_train, y_test, source):
                                    scoring='neg_mean_squared_error', cv=5, n_iter=10,
                                    return_train_score=False, refit=True, random_state=42)
     bayes_catboost.fit(X_train, y_train)
-    # Évaluer les prédictions avec RMSE
+    joblib.dump(bayes_catboost.best_estimator_, f'{base_directory}/modele_catboost_{source}.joblib')
+    print("Modèle CatBoost "+source+" sauvegardé")
 
+#    # trop long à exécuter
     # Entraînement du modèle XGBoost avec recherche bayesian (tuning)
-    xgboost_model = XGBRegressor(random_state=42)
-    param_space_xgboost = {
-        'max_depth': (3, 12),
-        'n_estimators': (100, 500),
-        'learning_rate': (0.001, 0.3),
-        'subsample': (0.8, 1.0),
-        'colsample_bytree': (0.8, 1.0),
-        'gamma': (0, 5)
-    }
-    bayes_xgboost = BayesSearchCV(estimator=xgboost_model, search_spaces=param_space_xgboost,
-                                  scoring='neg_mean_squared_error', cv=5, n_iter=10,
-                                  return_train_score=False, refit=True, random_state=42)
+#     xgboost_model = XGBRegressor(random_state=42)
+# #     param_space_xgboost = {
+# #         'max_depth': (3, 12),
+# #         'n_estimators': (100, 500),
+# #         'learning_rate': (0.001, 0.3),
+# #         'subsample': (0.8, 1.0),
+# #         'colsample_bytree': (0.8, 1.0),
+# #         'gamma': (0, 5)
+# #     }
+#     param_space_xgboost = {
+#         'max_depth': (3, 6)
+#     }
+#     bayes_xgboost = BayesSearchCV(estimator=xgboost_model, search_spaces=param_space_xgboost,
+#                                   scoring='neg_mean_squared_error', cv=2, n_iter=2,
+#                                   return_train_score=False, refit=True, random_state=42)
+#     bayes_xgboost.fit(X_train, y_train)
+#     joblib.dump(bayes_xgboost.best_estimator_, f'{base_directory}/modele_xgboost_{source}.joblib')
+#     print("Modèle XGBoost "+source+" sauvegardé")
+    bayes_xgboost = XGBRegressor(
+        max_depth=3,
+        n_estimators=100,
+        learning_rate=0.1,
+        subsample=1.0,
+        colsample_bytree=1.0,
+        gamma=0,
+        random_state=42
+    )
+
     bayes_xgboost.fit(X_train, y_train)
+
+    # Save the trained model
+    joblib.dump(bayes_xgboost, f'{base_directory}/modele_xgboost_{source}.joblib')
+    print("Modèle XGBoost " + source + " sauvegardé")
+
 
     # Entraînement du modèle RandomForest avec recherche bayesian (tuning)
     randomforest_model = RandomForestRegressor(random_state=42)
@@ -187,6 +227,8 @@ def train_and_evaluate_models(X_train, X_test, y_train, y_test, source):
                                        scoring='neg_mean_squared_error', cv=5, n_iter=10,
                                        return_train_score=False, refit=True, random_state=42)
     bayes_randomforest.fit(X_train, y_train)
+    joblib.dump(bayes_randomforest.best_estimator_, f'{base_directory}/modele_randomforest_{source}.joblib')
+    print("Modèle RandomForest "+source+" sauvegardé")
 
     # Entraînement du modèle ExtraTrees avec recherche bayesian (tuning)
     extratrees_model = ExtraTreesRegressor(random_state=42)
@@ -201,6 +243,8 @@ def train_and_evaluate_models(X_train, X_test, y_train, y_test, source):
                                      scoring='neg_mean_squared_error', cv=5, n_iter=10,
                                      return_train_score=False, refit=True, random_state=42)
     bayes_extratrees.fit(X_train, y_train)
+    joblib.dump(bayes_extratrees.best_estimator_, f'{base_directory}/modele_extratrees_{source}.joblib')
+    print("Modèle ExtraTrees "+source+" sauvegardé")
 
     # Entraînement du modèle DecisionTree avec recherche bayesian (tuning)
     decisiontree_model = DecisionTreeRegressor(random_state=42)
@@ -213,16 +257,18 @@ def train_and_evaluate_models(X_train, X_test, y_train, y_test, source):
                                        scoring='neg_mean_squared_error', cv=5, n_iter=10,
                                        return_train_score=False, refit=True, random_state=42)
     bayes_decisiontree.fit(X_train, y_train)
+    joblib.dump(bayes_decisiontree.best_estimator_, f'{base_directory}/modele_decisiontree_{source}.joblib')
+    print("Modèle DecisionTree "+source+" sauvegardé")
 
 
 
-    # Faire des prédictions pour chaque modèle (sans voting, stacking, bagging)
-    y_pred_lgbm = bayes_lgbm.best_estimator_.predict(X_test)
-    y_pred_catboost = bayes_catboost.best_estimator_.predict(X_test)
-    y_pred_xgboost = bayes_xgboost.best_estimator_.predict(X_test)
-    y_pred_randomforest = bayes_randomforest.best_estimator_.predict(X_test)
-    y_pred_extratrees = bayes_extratrees.best_estimator_.predict(X_test)
-    y_pred_decisiontree = bayes_decisiontree.best_estimator_.predict(X_test)
+#     # Faire des prédictions pour chaque modèle (sans voting, stacking, bagging)
+#     y_pred_lgbm = bayes_lgbm.best_estimator_.predict(X_test)
+#     y_pred_catboost = bayes_catboost.best_estimator_.predict(X_test)
+#     y_pred_xgboost = bayes_xgboost.best_estimator_.predict(X_test)
+#     y_pred_randomforest = bayes_randomforest.best_estimator_.predict(X_test)
+#     y_pred_extratrees = bayes_extratrees.best_estimator_.predict(X_test)
+#     y_pred_decisiontree = bayes_decisiontree.best_estimator_.predict(X_test)
 
 
 
@@ -230,7 +276,8 @@ def train_and_evaluate_models(X_train, X_test, y_train, y_test, source):
     base_models = [
         ('lgbm', bayes_lgbm.best_estimator_),
         ('catboost', bayes_catboost.best_estimator_),
-        ('xgboost', bayes_xgboost.best_estimator_),
+#         ('xgboost', bayes_xgboost.best_estimator_),
+        ('xgboost', bayes_xgboost),
         ('randomforest', bayes_randomforest.best_estimator_),
         ('extratrees', bayes_extratrees.best_estimator_),
         ('decisiontree', bayes_decisiontree.best_estimator_)
@@ -242,8 +289,10 @@ def train_and_evaluate_models(X_train, X_test, y_train, y_test, source):
     # Entraînement du modèle de stacking
     stacking_model.fit(X_train, y_train)
 
-    # Faire des prédictions avec le modèle de stacking
-    y_pred_stacking = stacking_model.predict(X_test)
+#     # Faire des prédictions avec le modèle de stacking
+#     y_pred_stacking = stacking_model.predict(X_test)
+    joblib.dump(stacking_model, f'{base_directory}/modele_stacking_{source}.joblib')
+    print("Modèle Stacking "+source+" sauvegardé")
 
 
 
@@ -251,7 +300,8 @@ def train_and_evaluate_models(X_train, X_test, y_train, y_test, source):
     voting_model = VotingRegressor(estimators=[
         ('lgbm', bayes_lgbm.best_estimator_),
         ('catboost', bayes_catboost.best_estimator_),
-        ('xgboost', bayes_xgboost.best_estimator_),
+#         ('xgboost', bayes_xgboost.best_estimator_),
+        ('xgboost', bayes_xgboost),
         ('randomforest', bayes_randomforest.best_estimator_),
         ('extratrees', bayes_extratrees.best_estimator_),
         ('decisiontree', bayes_decisiontree.best_estimator_)
@@ -260,37 +310,52 @@ def train_and_evaluate_models(X_train, X_test, y_train, y_test, source):
     # Entraînement du modèle de vote
     voting_model.fit(X_train, y_train)
 
-    # Faire des prédictions avec le modèle de vote
-    y_pred_voting = voting_model.predict(X_test)
+#     # Faire des prédictions avec le modèle de vote
+#     y_pred_voting = voting_model.predict(X_test)
+    joblib.dump(voting_model, f'{base_directory}/modele_voting_{source}.joblib')
+    print("Modèle Voting "+source+" sauvegardé")
 
 
 
     # Entraînement des modèles de bagging
     bagging_lgbm = BaggingRegressor(estimator=bayes_lgbm.best_estimator_)
     bagging_lgbm.fit(X_train, y_train)
+    joblib.dump(bagging_lgbm, f'{base_directory}/modele_bagging_lgbm_{source}.joblib')
+    print("Modèle Bagging LightGBM "+source+" sauvegardé")
 
     bagging_catboost = BaggingRegressor(estimator=bayes_catboost.best_estimator_)
     bagging_catboost.fit(X_train, y_train)
+    joblib.dump(bagging_catboost, f'{base_directory}/modele_bagging_catboost_{source}.joblib')
+    print("Modèle Bagging CatBoost "+source+" sauvegardé")
 
-    bagging_xgboost = BaggingRegressor(estimator=bayes_xgboost.best_estimator_)
+#     bagging_xgboost = BaggingRegressor(estimator=bayes_xgboost.best_estimator_)
+    bagging_xgboost = BaggingRegressor(estimator=bayes_xgboost)
     bagging_xgboost.fit(X_train, y_train)
+    joblib.dump(bagging_xgboost, f'{base_directory}/modele_bagging_xgboost_{source}.joblib')
+    print("Modèle Bagging XGBoost "+source+" sauvegardé")
 
     bagging_randomforest = BaggingRegressor(estimator=bayes_randomforest.best_estimator_)
     bagging_randomforest.fit(X_train, y_train)
+    joblib.dump(bagging_randomforest, f'{base_directory}/modele_bagging_randomforest_{source}.joblib')
+    print("Modèle Bagging RandomForest "+source+" sauvegardé")
 
     bagging_extratrees = BaggingRegressor(estimator=bayes_extratrees.best_estimator_)
     bagging_extratrees.fit(X_train, y_train)
+    joblib.dump(bagging_extratrees, f'{base_directory}/modele_bagging_extratrees_{source}.joblib')
+    print("Modèle Bagging ExtraTrees "+source+" sauvegardé")
 
     bagging_decisiontree = BaggingRegressor(estimator=bayes_decisiontree.best_estimator_)
     bagging_decisiontree.fit(X_train, y_train)
+    joblib.dump(bagging_decisiontree, f'{base_directory}/modele_bagging_decisiontree_{source}.joblib')
+    print("Modèle Bagging DecisionTree "+source+" sauvegardé")
 
-    # Faire des prédictions sur l'ensemble de test avec chaque modèle Bagging
-    y_pred_bagging_lgbm = bagging_lgbm.predict(X_test)
-    y_pred_bagging_catboost = bagging_catboost.predict(X_test)
-    y_pred_bagging_xgboost = bagging_xgboost.predict(X_test)
-    y_pred_bagging_randomforest = bagging_randomforest.predict(X_test)
-    y_pred_bagging_extratrees = bagging_extratrees.predict(X_test)
-    y_pred_bagging_decisiontree = bagging_decisiontree.predict(X_test)
+#     # Faire des prédictions sur l'ensemble de test avec chaque modèle Bagging
+#     y_pred_bagging_lgbm = bagging_lgbm.predict(X_test)
+#     y_pred_bagging_catboost = bagging_catboost.predict(X_test)
+#     y_pred_bagging_xgboost = bagging_xgboost.predict(X_test)
+#     y_pred_bagging_randomforest = bagging_randomforest.predict(X_test)
+#     y_pred_bagging_extratrees = bagging_extratrees.predict(X_test)
+#     y_pred_bagging_decisiontree = bagging_decisiontree.predict(X_test)
 
 
 
@@ -313,145 +378,147 @@ def train_and_evaluate_models(X_train, X_test, y_train, y_test, source):
 
 
 
-    # Évaluer les prédictions avec RMSE
-    rmse = mean_squared_error(y_test, y_pred_lgbm, squared=False)
-    print(f'RMSE avec LightGBM : {rmse}')
-    rmse = mean_squared_error(y_test, y_pred_catboost, squared=False)
-    print(f'RMSE avec CatBoost : {rmse}')
-    rmse = mean_squared_error(y_test, y_pred_xgboost, squared=False)
-    print(f'RMSE avec XGBoost : {rmse}')
-    rmse = mean_squared_error(y_test, y_pred_randomforest, squared=False)
-    print(f'RMSE avec RandomForest : {rmse}')
-    rmse = mean_squared_error(y_test, y_pred_extratrees, squared=False)
-    print(f'RMSE avec ExtraTrees : {rmse}')
-    rmse = mean_squared_error(y_test, y_pred_decisiontree, squared=False)
-    print(f'RMSE avec DecisionTree : {rmse}')
-
-    rmse = mean_squared_error(y_test, y_pred_voting, squared=False)
-    print(f'RMSE avec le modèle de vote : {rmse}')
-
-    rmse = mean_squared_error(y_test, y_pred_stacking, squared=False)
-    print(f'RMSE avec le modèle de stacking : {rmse}')
-
-    rmse = mean_squared_error(y_test, y_pred_bagging_lgbm, squared=False)
-    print(f'RMSE avec le modèle de bagging LightGBM : {rmse}')
-    rmse = mean_squared_error(y_test, y_pred_bagging_catboost, squared=False)
-    print(f'RMSE avec le modèle de bagging CatBoost : {rmse}')
-    mse = mean_squared_error(y_test, y_pred_bagging_xgboost, squared=False)
-    print(f'RMSE avec le modèle de bagging XGBoost : {rmse}')
-    mse = mean_squared_error(y_test, y_pred_bagging_randomforest, squared=False)
-    print(f'RMSE avec le modèle de bagging RandomForest : {rmse}')
-    mse = mean_squared_error(y_test, y_pred_bagging_decisiontree, squared=False)
-    print(f'RMSE avec le modèle de bagging DecisionTree : {rmse}')
-
-#     rmse = mean_squared_error(y_test, y_pred_voting_stacking_bagging_model, squared=False)
-#     print(f'RMSE avec le modèle de vote / stacking / bagging : {rmse}')
-
-    print('\n')
-
-    # Calculer le R-squared
-    r2 = r2_score(y_test, y_pred_lgbm)
-    print(f'R-squared avec LightGBM: {r2}')
-    r2 = r2_score(y_test, y_pred_catboost)
-    print(f'R-squared avec CatBoost: {r2}')
-    r2 = r2_score(y_test, y_pred_xgboost)
-    print(f'R-squared avec XGBoost: {r2}')
-    r2 = r2_score(y_test, y_pred_randomforest)
-    print(f'R-squared avec RandomForest: {r2}')
-    r2 = r2_score(y_test, y_pred_extratrees)
-    print(f'R-squared avec ExtraTrees: {r2}')
-    r2 = r2_score(y_test, y_pred_decisiontree)
-    print(f'R-squared avec DecisionTree: {r2}')
-
-    r2 = r2_score(y_test, y_pred_voting)
-    print(f'R-squared avec le modèle de vote : {r2}')
-
-    r2 = r2_score(y_test, y_pred_stacking)
-    print(f'R-squared avec le modèle de stacking : {r2}')
-
-    r2 = r2_score(y_test, y_pred_bagging_lgbm)
-    print(f'R-squared avec le modèle de bagging LightGBM : {r2}')
-    r2 = r2_score(y_test, y_pred_bagging_catboost)
-    print(f'R-squared avec le modèle de bagging CatBoost : {r2}')
-    r2 = r2_score(y_test, y_pred_bagging_xgboost)
-    print(f'R-squared avec le modèle de bagging XGBoost : {r2}')
-    r2 = r2_score(y_test, y_pred_bagging_randomforest)
-    print(f'R-squared avec le modèle de bagging RandomForest : {r2}')
-    r2 = r2_score(y_test, y_pred_bagging_extratrees)
-    print(f'R-squared avec le modèle de bagging ExtraTrees : {r2}')
-    r2 = r2_score(y_test, y_pred_bagging_decisiontree)
-    print(f'R-squared avec le modèle de bagging DecisionTree : {r2}')
-
-#     r2 = r2_score(y_test, y_pred_voting_stacking_bagging_model)
-#     print(f'R-squared avec le modèle de vote / stacking / bagging : {r2}')
-
-    print('\n')
-
-    # Afficher les résultats sous forme de dataframe
-    results = {
+#     # Évaluer les prédictions avec RMSE
+#     rmse = mean_squared_error(y_test, y_pred_lgbm, squared=False)
+#     print(f'RMSE avec LightGBM : {rmse}')
+#     rmse = mean_squared_error(y_test, y_pred_catboost, squared=False)
+#     print(f'RMSE avec CatBoost : {rmse}')
+#     rmse = mean_squared_error(y_test, y_pred_xgboost, squared=False)
+#     print(f'RMSE avec XGBoost : {rmse}')
+#     rmse = mean_squared_error(y_test, y_pred_randomforest, squared=False)
+#     print(f'RMSE avec RandomForest : {rmse}')
+#     rmse = mean_squared_error(y_test, y_pred_extratrees, squared=False)
+#     print(f'RMSE avec ExtraTrees : {rmse}')
+#     rmse = mean_squared_error(y_test, y_pred_decisiontree, squared=False)
+#     print(f'RMSE avec DecisionTree : {rmse}')
+#
+#     rmse = mean_squared_error(y_test, y_pred_voting, squared=False)
+#     print(f'RMSE avec le modèle de vote : {rmse}')
+#
+#     rmse = mean_squared_error(y_test, y_pred_stacking, squared=False)
+#     print(f'RMSE avec le modèle de stacking : {rmse}')
+#
+#     rmse = mean_squared_error(y_test, y_pred_bagging_lgbm, squared=False)
+#     print(f'RMSE avec le modèle de bagging LightGBM : {rmse}')
+#     rmse = mean_squared_error(y_test, y_pred_bagging_catboost, squared=False)
+#     print(f'RMSE avec le modèle de bagging CatBoost : {rmse}')
+#     mse = mean_squared_error(y_test, y_pred_bagging_xgboost, squared=False)
+#     print(f'RMSE avec le modèle de bagging XGBoost : {rmse}')
+#     mse = mean_squared_error(y_test, y_pred_bagging_randomforest, squared=False)
+#     print(f'RMSE avec le modèle de bagging RandomForest : {rmse}')
+#     mse = mean_squared_error(y_test, y_pred_bagging_decisiontree, squared=False)
+#     print(f'RMSE avec le modèle de bagging DecisionTree : {rmse}')
+#
+# #     rmse = mean_squared_error(y_test, y_pred_voting_stacking_bagging_model, squared=False)
+# #     print(f'RMSE avec le modèle de vote / stacking / bagging : {rmse}')
+#
+#     print('\n')
+#
+#     # Calculer le R-squared
+#     r2 = r2_score(y_test, y_pred_lgbm)
+#     print(f'R-squared avec LightGBM: {r2}')
+#     r2 = r2_score(y_test, y_pred_catboost)
+#     print(f'R-squared avec CatBoost: {r2}')
+#     r2 = r2_score(y_test, y_pred_xgboost)
+#     print(f'R-squared avec XGBoost: {r2}')
+#     r2 = r2_score(y_test, y_pred_randomforest)
+#     print(f'R-squared avec RandomForest: {r2}')
+#     r2 = r2_score(y_test, y_pred_extratrees)
+#     print(f'R-squared avec ExtraTrees: {r2}')
+#     r2 = r2_score(y_test, y_pred_decisiontree)
+#     print(f'R-squared avec DecisionTree: {r2}')
+#
+#     r2 = r2_score(y_test, y_pred_voting)
+#     print(f'R-squared avec le modèle de vote : {r2}')
+#
+#     r2 = r2_score(y_test, y_pred_stacking)
+#     print(f'R-squared avec le modèle de stacking : {r2}')
+#
+#     r2 = r2_score(y_test, y_pred_bagging_lgbm)
+#     print(f'R-squared avec le modèle de bagging LightGBM : {r2}')
+#     r2 = r2_score(y_test, y_pred_bagging_catboost)
+#     print(f'R-squared avec le modèle de bagging CatBoost : {r2}')
+#     r2 = r2_score(y_test, y_pred_bagging_xgboost)
+#     print(f'R-squared avec le modèle de bagging XGBoost : {r2}')
+#     r2 = r2_score(y_test, y_pred_bagging_randomforest)
+#     print(f'R-squared avec le modèle de bagging RandomForest : {r2}')
+#     r2 = r2_score(y_test, y_pred_bagging_extratrees)
+#     print(f'R-squared avec le modèle de bagging ExtraTrees : {r2}')
+#     r2 = r2_score(y_test, y_pred_bagging_decisiontree)
+#     print(f'R-squared avec le modèle de bagging DecisionTree : {r2}')
+#
+# #     r2 = r2_score(y_test, y_pred_voting_stacking_bagging_model)
+# #     print(f'R-squared avec le modèle de vote / stacking / bagging : {r2}')
+#
+#     print('\n')
+#
+#     # Afficher les résultats sous forme de dataframe
+#     results = {
+# #         'Model': ['LightGBM', 'CatBoost', 'XGBoost', 'RandomForest', 'ExtraTrees', 'DecisionTree',
+# #                   'Voting', 'Stacking', 'Bagging_LightGBM', 'Bagging_CatBoost', 'Bagging_XGBoost',
+# #                   'Bagging_RandomForest', 'Bagging_ExtraTrees', 'Bagging_DecisionTree', 'Voting_Stacking_Bagging'],
 #         'Model': ['LightGBM', 'CatBoost', 'XGBoost', 'RandomForest', 'ExtraTrees', 'DecisionTree',
 #                   'Voting', 'Stacking', 'Bagging_LightGBM', 'Bagging_CatBoost', 'Bagging_XGBoost',
-#                   'Bagging_RandomForest', 'Bagging_ExtraTrees', 'Bagging_DecisionTree', 'Voting_Stacking_Bagging'],
-        'Model': ['LightGBM', 'CatBoost', 'XGBoost', 'RandomForest', 'ExtraTrees', 'DecisionTree',
-                  'Voting', 'Stacking', 'Bagging_LightGBM', 'Bagging_CatBoost', 'Bagging_XGBoost',
-                  'Bagging_RandomForest', 'Bagging_ExtraTrees', 'Bagging_DecisionTree'],
-        'RMSE': [mean_squared_error(y_test, y_pred_lgbm, squared=False),
-                 mean_squared_error(y_test, y_pred_catboost, squared=False),
-                 mean_squared_error(y_test, y_pred_xgboost, squared=False),
-                 mean_squared_error(y_test, y_pred_randomforest, squared=False),
-                 mean_squared_error(y_test, y_pred_extratrees, squared=False),
-                 mean_squared_error(y_test, y_pred_decisiontree, squared=False),
-                 mean_squared_error(y_test, y_pred_voting, squared=False),
-                 mean_squared_error(y_test, y_pred_stacking, squared=False),
-                 mean_squared_error(y_test, y_pred_bagging_lgbm, squared=False),
-                 mean_squared_error(y_test, y_pred_bagging_catboost, squared=False),
-                 mean_squared_error(y_test, y_pred_bagging_xgboost, squared=False),
-                 mean_squared_error(y_test, y_pred_bagging_randomforest, squared=False),
-                 mean_squared_error(y_test, y_pred_bagging_extratrees, squared=False),
-                 mean_squared_error(y_test, y_pred_bagging_decisiontree, squared=False)],
-#                  mean_squared_error(y_test, y_pred_voting_stacking_bagging_model, squared=False)],
-        'R-squared': [r2_score(y_test, y_pred_lgbm),
-                      r2_score(y_test, y_pred_catboost),
-                      r2_score(y_test, y_pred_xgboost),
-                      r2_score(y_test, y_pred_randomforest),
-                      r2_score(y_test, y_pred_extratrees),
-                      r2_score(y_test, y_pred_decisiontree),
-                      r2_score(y_test, y_pred_voting),
-                      r2_score(y_test, y_pred_stacking),
-                      r2_score(y_test, y_pred_bagging_lgbm),
-                      r2_score(y_test, y_pred_bagging_catboost),
-                      r2_score(y_test, y_pred_bagging_xgboost),
-                      r2_score(y_test, y_pred_bagging_randomforest),
-                      r2_score(y_test, y_pred_bagging_extratrees),
-                      r2_score(y_test, y_pred_bagging_decisiontree)]
-#                       r2_score(y_test, y_pred_voting_stacking_bagging_model)]
-    }
+#                   'Bagging_RandomForest', 'Bagging_ExtraTrees', 'Bagging_DecisionTree'],
+#         'RMSE': [mean_squared_error(y_test, y_pred_lgbm, squared=False),
+#                  mean_squared_error(y_test, y_pred_catboost, squared=False),
+#                  mean_squared_error(y_test, y_pred_xgboost, squared=False),
+#                  mean_squared_error(y_test, y_pred_randomforest, squared=False),
+#                  mean_squared_error(y_test, y_pred_extratrees, squared=False),
+#                  mean_squared_error(y_test, y_pred_decisiontree, squared=False),
+#                  mean_squared_error(y_test, y_pred_voting, squared=False),
+#                  mean_squared_error(y_test, y_pred_stacking, squared=False),
+#                  mean_squared_error(y_test, y_pred_bagging_lgbm, squared=False),
+#                  mean_squared_error(y_test, y_pred_bagging_catboost, squared=False),
+#                  mean_squared_error(y_test, y_pred_bagging_xgboost, squared=False),
+#                  mean_squared_error(y_test, y_pred_bagging_randomforest, squared=False),
+#                  mean_squared_error(y_test, y_pred_bagging_extratrees, squared=False),
+#                  mean_squared_error(y_test, y_pred_bagging_decisiontree, squared=False)],
+# #                  mean_squared_error(y_test, y_pred_voting_stacking_bagging_model, squared=False)],
+#         'R-squared': [r2_score(y_test, y_pred_lgbm),
+#                       r2_score(y_test, y_pred_catboost),
+#                       r2_score(y_test, y_pred_xgboost),
+#                       r2_score(y_test, y_pred_randomforest),
+#                       r2_score(y_test, y_pred_extratrees),
+#                       r2_score(y_test, y_pred_decisiontree),
+#                       r2_score(y_test, y_pred_voting),
+#                       r2_score(y_test, y_pred_stacking),
+#                       r2_score(y_test, y_pred_bagging_lgbm),
+#                       r2_score(y_test, y_pred_bagging_catboost),
+#                       r2_score(y_test, y_pred_bagging_xgboost),
+#                       r2_score(y_test, y_pred_bagging_randomforest),
+#                       r2_score(y_test, y_pred_bagging_extratrees),
+#                       r2_score(y_test, y_pred_bagging_decisiontree)]
+# #                       r2_score(y_test, y_pred_voting_stacking_bagging_model)]
+#     }
+#
+#     results_df = pd.DataFrame(results)
+#     print("Dataframe des résultats : ")
+#     print(results_df)
 
-    results_df = pd.DataFrame(results)
-    print("Dataframe des résultats : ")
-    print(results_df)
+#     # Sauvegarder chaque modèle individuellement
+#     base_directory = "joblib/joblib_energy"
+#     joblib.dump(bayes_lgbm.best_estimator_, f'{base_directory}/modele_lgbm_{source}.joblib')
+#     joblib.dump(bayes_catboost.best_estimator_, f'{base_directory}/modele_catboost_{source}.joblib')
+#     joblib.dump(bayes_xgboost.best_estimator_, f'{base_directory}/modele_xgboost_{source}.joblib')
+#     joblib.dump(bayes_randomforest.best_estimator_, f'{base_directory}/modele_randomforest_{source}.joblib')
+#     joblib.dump(bayes_extratrees.best_estimator_, f'{base_directory}/modele_extratrees_{source}.joblib')
+#     joblib.dump(bayes_decisiontree.best_estimator_, f'{base_directory}/modele_decisiontree_{source}.joblib')
+#     joblib.dump(voting_model, f'{base_directory}/modele_voting_{source}.joblib')
+#     joblib.dump(stacking_model, f'{base_directory}/modele_stacking_{source}.joblib')
+#     joblib.dump(bagging_lgbm, f'{base_directory}/modele_bagging_lgbm_{source}.joblib')
+#     joblib.dump(bagging_catboost, f'{base_directory}/modele_bagging_catboost_{source}.joblib')
+#     joblib.dump(bagging_xgboost, f'{base_directory}/modele_bagging_xgboost_{source}.joblib')
+#     joblib.dump(bagging_randomforest, f'{base_directory}/modele_bagging_randomforest_{source}.joblib')
+#     joblib.dump(bagging_extratrees, f'{base_directory}/modele_bagging_extratrees_{source}.joblib')
+#     joblib.dump(bagging_decisiontree, f'{base_directory}/modele_bagging_decisiontree_{source}.joblib')
+# #     joblib.dump(voting_stacking_bagging_model, f'{base_directory}/modele_voting_stacking_bagging_{source}.joblib')
 
-    # Sauvegarder chaque modèle individuellement
-    base_directory = "joblib/joblib_energy"
-    joblib.dump(bayes_lgbm.best_estimator_, f'{base_directory}/modele_lgbm_{source}.joblib')
-    joblib.dump(bayes_catboost.best_estimator_, f'{base_directory}/modele_catboost_{source}.joblib')
-    joblib.dump(bayes_xgboost.best_estimator_, f'{base_directory}/modele_xgboost_{source}.joblib')
-    joblib.dump(bayes_randomforest.best_estimator_, f'{base_directory}/modele_randomforest_{source}.joblib')
-    joblib.dump(bayes_extratrees.best_estimator_, f'{base_directory}/modele_extratrees_{source}.joblib')
-    joblib.dump(bayes_decisiontree.best_estimator_, f'{base_directory}/modele_decisiontree_{source}.joblib')
-    joblib.dump(voting_model, f'{base_directory}/modele_voting_{source}.joblib')
-    joblib.dump(stacking_model, f'{base_directory}/modele_stacking_{source}.joblib')
-    joblib.dump(bagging_lgbm, f'{base_directory}/modele_bagging_lgbm_{source}.joblib')
-    joblib.dump(bagging_catboost, f'{base_directory}/modele_bagging_catboost_{source}.joblib')
-    joblib.dump(bagging_xgboost, f'{base_directory}/modele_bagging_xgboost_{source}.joblib')
-    joblib.dump(bagging_randomforest, f'{base_directory}/modele_bagging_randomforest_{source}.joblib')
-    joblib.dump(bagging_extratrees, f'{base_directory}/modele_bagging_extratrees_{source}.joblib')
-    joblib.dump(bagging_decisiontree, f'{base_directory}/modele_bagging_decisiontree_{source}.joblib')
-#     joblib.dump(voting_stacking_bagging_model, f'{base_directory}/modele_voting_stacking_bagging_{source}.joblib')
-
-    return y_pred_stacking, stacking_model
+#     return y_pred_stacking, stacking_model
 
 print("Solar models")
-y_pred_solar_stacking, stacking_model_solar = train_and_evaluate_models(X_train_solar, X_test_solar, y_train_solar, y_test_solar, "solar")
+# y_pred_solar_stacking, stacking_model_solar = train_and_evaluate_models(X_train_solar, X_test_solar, y_train_solar, y_test_solar, "solar")
+train_and_evaluate_models(X_train_solar, X_test_solar, y_train_solar, y_test_solar, "solar")
 print("Wind models")
-y_pred_wind_stacking, stacking_model_wind = train_and_evaluate_models(X_train_wind, X_test_wind, y_train_wind, y_test_wind, "wind")
+# y_pred_wind_stacking, stacking_model_wind = train_and_evaluate_models(X_train_wind, X_test_wind, y_train_wind, y_test_wind, "wind")
+train_and_evaluate_models(X_train_wind, X_test_wind, y_train_wind, y_test_wind, "wind")
