@@ -86,9 +86,12 @@
                 </table>
             </div>
         </div>
+        <img src="/static/images/energy/solar_wind_presentation_graph.png" alt="solar_wind_presentation_graph.png">
+        <br><br><br><br>
         <h4>Model results</h4>
         <div class="row">
             <div class="col-6">
+                Solar energy
                 <table>
                     <tr>
                         {% for col in solar_data.columns %}
@@ -105,6 +108,7 @@
                 </table>
             </div>
             <div class="col-6">
+                Wind energy
                 <table>
                     <tr>
                         {% for col in wind_data.columns %}
@@ -121,8 +125,6 @@
                 </table>
             </div>
         </div>
-
-        <img src="/static/images/energy/solar_wind_presentation_graph.png" alt="solar_wind_presentation_graph.png">
         <br><br>
         <h4>Load prediction models</h4>
         <div class="form-group">
