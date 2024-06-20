@@ -444,11 +444,26 @@
         <br>Classification : Predicting categorical variables (wind turbine faults)
         <br>Supervised learning : For each example, the value is known
         <br><br>
+        <br><h4>Analysis</h4>
         The 3 datasets have different time spans. The status data has the longest record timespan from January 2014 to December 2015.<br>Therefore, when seeing the SCADA records, we can refer to status and fault data to see what happens on the turbine at certain timestamps.
-        <br><br><img src="/static/images/energy/windTurbineFaults/wind_turbine_plot_time_span.png" alt="wind_turbine_plot_time_span.png">
+        <br><img src="/static/images/energy/windTurbineFaults/wind_turbine_plot_time_span.png" alt="wind_turbine_plot_time_span.png">
         <br><br>There are lots of EF events in October and November 2014, and lots of FF events from October 2014 - January 2015.
         <img src="/static/images/energy/windTurbineFaults/wind_turbine_plot_nb_fault_per_month.png" alt="wind_turbine_plot_nb_fault_per_month.png">
-        <br><br>We combine SCADA and fault data to pair each measurements with associated faults.
+        <br><br>
+        <br><h4>Combine SCADA and Fault Data</h4>
+        <br>We combine SCADA and fault data to pair each measurements with associated faults.
+        <br><span style="color: lightcoral;">df_combine = scada_df.merge(fault_df, on='Time', how='outer')</span>
+        <br><br>There are lots of NaNs, or unmatched SCADA timestamps with fault timestamps, because there are no faults happen at certain time like we saw in the first graph. For these NaNs, we will replace with "NF" (No Fault).
+        <br><span style="color: lightcoral;">df_combine['Fault'] = df_combine['Fault'].replace(np.nan, 'NF')</span>
+        <br><br><button id="togglecombinedScadaFaultBtn" class="btn btn-primary toggle-btn">Show / Hide Combined Dataframe</button>
+        <div id="combinedScadaFaultTable" style="display: none;">
+            <h2>Combined SCADA and Fault Datasets (first 5 rows)</h2>
+            Scroll to the right to see all columns !
+            {{ html_table | safe }}
+        </div>
+
+
+
 
         <br><br><br><br>
         <h4>Model results</h4>
@@ -656,6 +671,14 @@
     });
     document.getElementById('toggleStatusDescBtn').addEventListener('click', function() {
         var table = document.getElementById('statusDesc');
+        if (table.style.display === 'none') {
+            table.style.display = 'table';
+        } else {
+            table.style.display = 'none';
+        }
+    });
+    document.getElementById('togglecombinedScadaFaultBtn').addEventListener('click', function() {
+        var table = document.getElementById('combinedScadaFaultTable');
         if (table.style.display === 'none') {
             table.style.display = 'table';
         } else {
