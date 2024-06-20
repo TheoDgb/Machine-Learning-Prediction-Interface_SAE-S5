@@ -17,10 +17,12 @@ def index():
     return render_template('index.html')
 
 
+
+# ==================== SOLARFLARE ====================
+
 @app.route('/solarflare')
 def solarflare_home():
     return render_template('solarflare.html')
-
 
 @app.route('/solarflare/predict', methods=['POST'])
 def predictsolar():
@@ -60,10 +62,11 @@ def predictsolar():
         return jsonify({'error': 'Internal Server Error'}), 500
 
 
+
+# ==================== WEATHER ====================
 @app.route('/weather')
 def weather_home():
     return render_template('weather.html')
-
 
 @app.route('/weather/predict', methods=['POST'])
 def predictweather():
@@ -107,6 +110,9 @@ def predictweather():
         return jsonify({'error': 'Internal Server Error'}), 500
 
 
+
+# ==================== ENERGY ====================
+# -------------------- ENERGY PRODUCTION --------------------
 @app.route('/energy')
 def energy_home():
     if not os.path.exists('static/images/energy/solar_wind_presentation_graph.png'):
@@ -117,18 +123,6 @@ def energy_home():
     wind_data = pd.read_csv('scripts/energy/res_models_wind.csv')
 
     return render_template('energy.html', solar_data=solar_data, wind_data=wind_data)
-
-@app.route('/wind-turbine')
-def wind_turbine_home():
-    if not os.path.exists('static/images/energy/solar_wind_presentation_graph.png'):
-        subprocess.run(['python3', 'scripts/energy/solarwindpresentation.py'])
-
-    # Charger les fichiers CSV
-    solar_data = pd.read_csv('scripts/energy/res_models_solar.csv')
-    wind_data = pd.read_csv('scripts/energy/res_models_wind.csv')
-    return render_template('windturbine.html', solar_data=solar_data, wind_data=wind_data)
-#     return render_template('windturbine.html')
-
 
 @app.route('/load_energy_models')
 def load_energy_models():
@@ -172,7 +166,6 @@ def predict():
         print('Error:', e)
         return jsonify({'error': 'Internal Server Error'}), 500
 
-
 @app.route('/energy/predict-future-by-periods', methods=['POST'])
 def predict_future():
     try:
@@ -203,6 +196,19 @@ def predict_future():
     except Exception as e:
         print('Error:', e)
         return jsonify({'error': 'Internal Server Error'}), 500
+
+# -------------------- WIND TURBINE FAULTS --------------------
+@app.route('/wind-turbine')
+def wind_turbine_home():
+    if not os.path.exists('static/images/energy/windTurbineFaults/wind_turbine_plot_time_span.png') or not os.path.exists('static/images/energy/windTurbineFaults/wind_turbine_plot_nb_fault_per_month.png'):
+        subprocess.run(['python3', 'scripts/energy/windTurbineFaults/wind_turbine_analysis.py'])
+
+    # Charger les fichiers CSV
+    solar_data = pd.read_csv('scripts/energy/res_models_solar.csv')
+    wind_data = pd.read_csv('scripts/energy/res_models_wind.csv')
+    return render_template('windturbine.html', solar_data=solar_data, wind_data=wind_data)
+#     return render_template('windturbine.html')
+
 
 
 if __name__ == '__main__':
