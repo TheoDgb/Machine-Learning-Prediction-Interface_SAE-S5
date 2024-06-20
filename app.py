@@ -120,14 +120,14 @@ def energy_home():
 
 @app.route('/wind-turbine')
 def wind_turbine_home():
-#     if not os.path.exists('static/images/energy/solar_wind_presentation_graph.png'):
-#         subprocess.run(['python3', 'scripts/energy/solarwindpresentation.py'])
-#
-#     # Charger les fichiers CSV
-#     solar_data = pd.read_csv('scripts/energy/res_models_solar.csv')
-#     wind_data = pd.read_csv('scripts/energy/res_models_wind.csv')
-#     return render_template('windturbine.html', solar_data=solar_data, wind_data=wind_data)
-    return render_template('windturbine.html')
+    if not os.path.exists('static/images/energy/solar_wind_presentation_graph.png'):
+        subprocess.run(['python3', 'scripts/energy/solarwindpresentation.py'])
+
+    # Charger les fichiers CSV
+    solar_data = pd.read_csv('scripts/energy/res_models_solar.csv')
+    wind_data = pd.read_csv('scripts/energy/res_models_wind.csv')
+    return render_template('windturbine.html', solar_data=solar_data, wind_data=wind_data)
+#     return render_template('windturbine.html')
 
 
 @app.route('/load_energy_models')

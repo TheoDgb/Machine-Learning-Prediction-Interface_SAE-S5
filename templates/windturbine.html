@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Machine Learning Prediction</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-custom">
+        <a class="navbar-brand" href="#">Machine Learning Prediction</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="/">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/solarflare">Solar Flare</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/weather">Weather</a>
+                </li>
+                <li class="nav-item dropdown active">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Energy (Regression / Classification)
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <a class="dropdown-item" href="/energy">Energy Production</a>
+                        <a class="dropdown-item" href="/wind-turbine">Wind Turbine (Fault Detection / Diagnostic)</a>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h2>Wind Turbine (Fault Detection / Diagnostic)</h2>
+        <br>
+        <h4>Data presentation</h4>
+
+        Data from Kaggle : <a href="https://www.kaggle.com/datasets/wasuratme96/iiot-data-of-wind-turbine/data" target="_blank">wind-turbine-faults</a>
+        <br>There is 3 datasets :
+        <br><br>
+        <strong>1. fault_data.csv :</strong>
+        <div class="row">
+            <div class="col-6">
+                Contains wind turbine fault types (5 types)
+                <table>
+                    <tr>
+                        <th>Fault Class</th>
+                        <th>Fault Description</th>
+                    </tr>
+                    <tr>
+                        <td>GF</td>
+                        <td>Generator heating Fault</td>
+                    </tr>
+                    <tr>
+                        <td>MF</td>
+                        <td>Mains failure Fault</td>
+                    </tr>
+                    <tr>
+                        <td>FF</td>
+                        <td>Feeding Fault</td>
+                    </tr>
+                    <tr>
+                        <td>AF</td>
+                        <td>Air cooling Fault</td>
+                    </tr>
+                    <tr>
+                        <td>EF</td>
+                        <td>Excitation Fault</td>
+                    </tr>
+                </table>
+                553 rows × 3 columns
+                <br>From 14 May 2014 to 15 January 2015
+            </div>
+            <div class="col-6">
+                CSV Description
+                <table>
+                    <tr>
+                        <th>Column</th>
+                        <th>Description</th>
+                    </tr>
+                    <tr>
+                        <td>DateTime</td>
+                        <td>The date and time when the fault was recorded.</td>
+                    </tr>
+                    <tr>
+                        <td>Time</td>
+                        <td>Unix timestamp representing the recorded date and time.</td>
+                    </tr>
+                    <tr>
+                        <td>Fault</td>
+                        <td>The type of fault or error that occurred.</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <br>
+        <br><strong>2. scada_data.csv :</strong>
+        <div class="row">
+            <div class="col-6">
+                Contains 67 informations (or status) of wind turbine components recorded by SCADA system
+                <br><br>49027 rows × 66 columns
+                <br>From 01 May 2014 to 09 April 2015
+                <br><br><button id="toggleScadaDescBtn" class="btn btn-primary toggle-btn">Show / Hide Description</button>
+            </div>
+            <div class="col-6" id="scadaDesc" style="display: none;">
+                CSV Description
+                <table>
+                    <tr>
+                        <th>Column</th>
+                        <th>Description</th>
+                    </tr>
+                    <tr>
+                        <td>DateTime</td>
+                        <td>The date and time of the recorded data.</td>
+                    </tr>
+                    <tr>
+                        <td>Time</td>
+                        <td>Unix timestamp representing the recorded date and time.</td>
+                    </tr>
+                    <tr>
+                        <td>Error</td>
+                        <td>Error code or status indicating if there were any issues during the recording period.</td>
+                    </tr>
+                    <tr>
+                        <td>WEC: ava. windspeed</td>
+                        <td>Average wind speed recorded by the Wind Energy Converter (WEC).</td>
+                    </tr>
+                    <tr>
+                        <td>WEC: max. windspeed</td>
+                        <td>Maximum wind speed recorded by the WEC.</td>
+                    </tr>
+                    <tr>
+                        <td>WEC: min. windspeed</td>
+                        <td>Minimum wind speed recorded by the WEC.</td>
+                    </tr>
+                    <tr>
+                        <td>WEC: ava. Rotation</td>
+                        <td>Average rotation speed of the WEC.</td>
+                    </tr>
+                    <tr>
+                        <td>WEC: max. Rotation</td>
+                        <td>Maximum rotation speed of the WEC.</td>
+                    </tr>
+                    <tr>
+                        <td>WEC: min. Rotation</td>
+                        <td>Minimum rotation speed of the WEC.</td>
+                    </tr>
+                    <tr>
+                        <td>WEC: ava. Power</td>
+                        <td>Average power output of the WEC.</td>
+                    </tr>
+                    <tr>
+                        <td>WEC: max. Power</td>
+                        <td>Maximum power output of the WEC.</td>
+                    </tr>
+                    <tr>
+                        <td>WEC: min. Power</td>
+                        <td>Minimum power output of the WEC.</td>
+                    </tr>
+                    <tr>
+                        <td>WEC: ava. Nacel position including cable twisting</td>
+                        <td>Average nacelle position including any cable twisting.</td>
+                    </tr>
+                    <tr>
+                        <td>WEC: Operating Hours</td>
+                        <td>Total operating hours of the WEC.</td>
+                    </tr>
+                    <tr>
+                        <td>WEC: Production kWh</td>
+                        <td>Total production in kilowatt-hours.</td>
+                    </tr>
+                    <tr>
+                        <td>WEC: Production minutes</td>
+                        <td>Total production time in minutes.</td>
+                    </tr>
+                    <tr>
+                        <td>WEC: ava. reactive Power</td>
+                        <td>Average reactive power of the WEC.</td>
+                    </tr>
+                    <tr>
+                        <td>WEC: max. reactive Power</td>
+                        <td>Maximum reactive power of the WEC.</td>
+                    </tr>
+                    <tr>
+                        <td>WEC: min. reactive Power</td>
+                        <td>Minimum reactive power of the WEC.</td>
+                    </tr>
+                    <tr>
+                        <td>WEC: ava. available P from wind</td>
+                        <td>Average available power from wind.</td>
+                    </tr>
+                    <tr>
+                        <td>WEC: ava. available P technical reasons</td>
+                        <td>Average available power limited by technical reasons.</td>
+                    </tr>
+                    <tr>
+                        <td>WEC: ava. Available P force majeure reasons</td>
+                        <td>Average available power limited by force majeure reasons.</td>
+                    </tr>
+                    <tr>
+                        <td>WEC: ava. Available P force external reasons</td>
+                        <td>Average available power limited by external reasons.</td>
+                    </tr>
+                    <tr>
+                        <td>WEC: ava. blade angle A</td>
+                        <td>Average blade angle of blade A.</td>
+                    </tr>
+                    <tr>
+                        <td>Sys 1 inverter 1 cabinet temp.</td>
+                        <td>Temperature inside the cabinet of system 1 inverter 1.</td>
+                    </tr>
+                    <tr>
+                        <td>Sys 1 inverter 2 cabinet temp.</td>
+                        <td>Temperature inside the cabinet of system 1 inverter 2.</td>
+                    </tr>
+                    <tr>
+                        <td>Sys 1 inverter 3 cabinet temp.</td>
+                        <td>Temperature inside the cabinet of system 1 inverter 3.</td>
+                    </tr>
+                    <tr>
+                        <td>Sys 1 inverter 4 cabinet temp.</td>
+                        <td>Temperature inside the cabinet of system 1 inverter 4.</td>
+                    </tr>
+                    <tr>
+                        <td>Sys 1 inverter 5 cabinet temp.</td>
+                        <td>Temperature inside the cabinet of system 1 inverter 5.</td>
+                    </tr>
+                    <tr>
+                        <td>Sys 1 inverter 6 cabinet temp.</td>
+                        <td>Temperature inside the cabinet of system 1 inverter 6.</td>
+                    </tr>
+                    <tr>
+                        <td>Sys 1 inverter 7 cabinet temp.</td>
+                        <td>Temperature inside the cabinet of system 1 inverter 7.</td>
+                    </tr>
+                    <tr>
+                        <td>Sys 2 inverter 1 cabinet temp.</td>
+                        <td>Temperature inside the cabinet of system 2 inverter 1.</td>
+                    </tr>
+                    <tr>
+                        <td>Sys 2 inverter 2 cabinet temp.</td>
+                        <td>Temperature inside the cabinet of system 2 inverter 2.</td>
+                    </tr>
+                    <tr>
+                        <td>Sys 2 inverter 3 cabinet temp.</td>
+                        <td>Temperature inside the cabinet of system 2 inverter 3.</td>
+                    </tr>
+                    <tr>
+                        <td>Sys 2 inverter 4 cabinet temp.</td>
+                        <td>Temperature inside the cabinet of system 2 inverter 4.</td>
+                    </tr>
+                    <tr>
+                        <td>Sys 2 inverter 5 cabinet temp.</td>
+                        <td>Temperature inside the cabinet of system 2 inverter 5.</td>
+                    </tr>
+                    <tr>
+                        <td>Sys 2 inverter 6 cabinet temp.</td>
+                        <td>Temperature inside the cabinet of system 2 inverter 6.</td>
+                    </tr>
+                    <tr>
+                        <td>Sys 2 inverter 7 cabinet temp.</td>
+                        <td>Temperature inside the cabinet of system 2 inverter 7.</td>
+                    </tr>
+                    <tr>
+                        <td>Spinner temp.</td>
+                        <td>Temperature of the spinner.</td>
+                    </tr>
+                    <tr>
+                        <td>Front bearing temp.</td>
+                        <td>Temperature of the front bearing.</td>
+                    </tr>
+                    <tr>
+                        <td>Rear bearing temp.</td>
+                        <td>Temperature of the rear bearing.</td>
+                    </tr>
+                    <tr>
+                        <td>Pitch cabinet blade A temp.</td>
+                        <td>Temperature inside the pitch cabinet for blade A.</td>
+                    </tr>
+                    <tr>
+                        <td>Pitch cabinet blade B temp.</td>
+                        <td>Temperature inside the pitch cabinet for blade B.</td>
+                    </tr>
+                    <tr>
+                        <td>Pitch cabinet blade C temp.</td>
+                        <td>Temperature inside the pitch cabinet for blade C.</td>
+                    </tr>
+                    <tr>
+                        <td>Blade A temp.</td>
+                        <td>Temperature of blade A.</td>
+                    </tr>
+                    <tr>
+                        <td>Blade B temp.</td>
+                        <td>Temperature of blade B.</td>
+                    </tr>
+                    <tr>
+                        <td>Blade C temp.</td>
+                        <td>Temperature of blade C.</td>
+                    </tr>
+                    <tr>
+                        <td>Rotor temp. 1</td>
+                        <td>Temperature of rotor 1.</td>
+                    </tr>
+                    <tr>
+                        <td>Rotor temp. 2</td>
+                        <td>Temperature of rotor 2.</td>
+                    </tr>
+                    <tr>
+                        <td>Stator temp. 1</td>
+                        <td>Temperature of stator 1.</td>
+                    </tr>
+                    <tr>
+                        <td>Stator temp. 2</td>
+                        <td>Temperature of stator 2.</td>
+                    </tr>
+                    <tr>
+                        <td>Nacelle ambient temp. 1</td>
+                        <td>Ambient temperature inside the nacelle at position 1.</td>
+                    </tr>
+                    <tr>
+                        <td>Nacelle ambient temp. 2</td>
+                        <td>Ambient temperature inside the nacelle at position 2.</td>
+                    </tr>
+                    <tr>
+                        <td>Nacelle temp.</td>
+                        <td>General temperature inside the nacelle.</td>
+                    </tr>
+                    <tr>
+                        <td>Nacelle cabinet temp.</td>
+                        <td>Temperature inside the nacelle cabinet.</td>
+                    </tr>
+                    <tr>
+                        <td>Main carrier temp.</td>
+                        <td>Temperature of the main carrier.</td>
+                    </tr>
+                    <tr>
+                        <td>Rectifier cabinet temp.</td>
+                        <td>Temperature inside the rectifier cabinet.</td>
+                    </tr>
+                    <tr>
+                        <td>Yaw inverter cabinet temp.</td>
+                        <td>Temperature inside the yaw inverter cabinet.</td>
+                    </tr>
+                    <tr>
+                        <td>Fan inverter cabinet temp.</td>
+                        <td>Temperature inside the fan inverter cabinet.</td>
+                    </tr>
+                    <tr>
+                        <td>Ambient temp.</td>
+                        <td>Ambient temperature.</td>
+                    </tr>
+                    <tr>
+                        <td>Tower temp.</td>
+                        <td>Temperature inside the tower.</td>
+                    </tr>
+                    <tr>
+                        <td>Control cabinet temp.</td>
+                        <td>Temperature inside the control cabinet.</td>
+                    </tr>
+                    <tr>
+                        <td>Transformer temp.</td>
+                        <td>Temperature of the transformer.</td>
+                    </tr>
+                    <tr>
+                        <td>RTU: ava. Setpoint 1</td>
+                        <td>Average setpoint of the Remote Terminal Unit (RTU).</td>
+                    </tr>
+                    <tr>
+                        <td>Inverter averages</td>
+                        <td>Average data from inverters.</td>
+                    </tr>
+                    <tr>
+                        <td>Inverter std dev</td>
+                        <td>Standard deviation of inverter data.</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <br>
+        <br><strong>3. status_data.csv :</strong>
+        <div class="row">
+            <div class="col-6">
+                Contains description of status of wind turbine operational
+                <br><br>1849 rows × 9 columns
+                <br>From 24 April 2014 to 28 April 2015
+                <br><br><button id="toggleStatusDescBtn" class="btn btn-primary toggle-btn">Show / Hide Description</button>
+            </div>
+            <div class="col-6" id="statusDesc" style="display: none;">
+                CSV Description
+                <table>
+                    <tr>
+                        <th>Column</th>
+                        <th>Description</th>
+                    </tr>
+                    <tr>
+                        <td>Time</td>
+                        <td>The timestamp when the event or data was recorded.</td>
+                    </tr>
+                    <tr>
+                        <td>Main Status</td>
+                        <td>The primary status code indicating the general state of the turbine.</td>
+                    </tr>
+                    <tr>
+                        <td>Sub Status</td>
+                        <td>The secondary status code providing more specific information about the state of the turbine.</td>
+                    </tr>
+                    <tr>
+                        <td>Full Status</td>
+                        <td>A combined code of main and sub-status, often formatted as "Main Status : Sub Status".</td>
+                    </tr>
+                    <tr>
+                        <td>Status Text</td>
+                        <td>A textual description of the current status or state of the turbine.</td>
+                    </tr>
+                    <tr>
+                        <td>T</td>
+                        <td>Unknown. The meaning of this column is not provided. It could be a specific code or identifier.</td>
+                    </tr>
+                    <tr>
+                        <td>Service</td>
+                        <td>Indicates whether the turbine is under service or maintenance.</td>
+                    </tr>
+                    <tr>
+                        <td>FaultMsg</td>
+                        <td>Indicates if there is an error message associated with the current status.</td>
+                    </tr>
+                    <tr>
+                        <td>Value0</td>
+                        <td>A numerical value associated with the event or status, possibly a measurement or specific data point.</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <br><br>
+        <h4>Objective : Predict wind turbine faults</h4>
+        <br>Classification : Predicting categorical variables (wind turbine faults)
+        <br>Supervised learning : For each example, the value is known
+        <br><br>59806 rows and 8 columns
+
+
+        <img src="/static/images/energy/solar_wind_presentation_graph.png" alt="solar_wind_presentation_graph.png">
+        <br><br><br><br>
+        <h4>Model results</h4>
+        <div class="row">
+            <div class="col-6">
+                Solar energy
+                <table>
+                    <tr>
+                        {% for col in solar_data.columns %}
+                        <th>{{ col }}</th>
+                        {% endfor %}
+                    </tr>
+                    {% for index, row in solar_data.iterrows() %}
+                    <tr>
+                        {% for value in row %}
+                        <td>{{ value }}</td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+            <div class="col-6">
+                Wind energy
+                <table>
+                    <tr>
+                        {% for col in wind_data.columns %}
+                        <th>{{ col }}</th>
+                        {% endfor %}
+                    </tr>
+                    {% for index, row in wind_data.iterrows() %}
+                    <tr>
+                        {% for value in row %}
+                        <td>{{ value }}</td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+        <br><br>
+        <h4>Load prediction models</h4>
+        <div class="form-group">
+            <button onclick="runScript()">Load models /!\ MAY TAKE SOME TIME</button>
+            <div id="status" style="margin-left: 10px;"></div>
+        </div>
+        <br>
+        <h4>Prediction by features</h4>
+        <form id="predictionForm">
+            <div class="form-group">
+                <label for="source">Source :</label>
+                <select id="source" name="source" required>
+                    <option value="solar">Solar</option>
+                    <option value="wind">Wind</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="model">Model :</label>
+                <select id="model" name="model" required>
+                    <option value="modele_lgbm">LightGBM</option>
+                    <option value="modele_catboost">CatBoost</option>
+                    <option value="modele_xgboost">XGBoost</option>
+                    <option value="modele_randomforest">RandomForest</option>
+                    <option value="modele_extratrees">ExtraTrees</option>
+                    <option value="modele_decisiontree">DecisionTree</option>
+                    <option value="modele_voting">Voting</option>
+                    <option value="modele_stacking">Stacking</option>
+                    <option value="modele_bagging_lgbm">Bagging LightGBM</option>
+                    <option value="modele_bagging_catboost">Bagging CatBoost</option>
+                    <option value="modele_bagging_xgboost">Bagging XGBoost</option>
+                    <option value="modele_bagging_randomforest">Bagging RandomForest</option>
+                    <option value="modele_bagging_extratrees">Bagging ExtraTrees</option>
+                    <option value="modele_bagging_decisiontree">Bagging DecisionTree</option>
+                    <option value="modele_bagging_bagging">Voting Stacking Bagging</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="dayOfYear">dayOfYear :</label>
+                <input type="number" id="dayOfYear" name="dayOfYear" required value="204">
+            </div>
+            <div class="form-group">
+                <label for="Year">Year :</label>
+                <input type="number" id="Year" name="Year" required value="2020">
+            </div>
+            <div class="form-group">
+                <label for="Month">Month :</label>
+                <input type="number" id="Month" name="Month" required value="7">
+            </div>
+            <div class="form-group">
+                <label for="Day">Day :</label>
+                <input type="number" id="Day" name="Day" required value="22">
+            </div>
+            <div class="form-group">
+                <label for="StartHour">StartHour :</label>
+                <input type="number" id="StartHour" name="StartHour" required value="20">
+            </div>
+            <div class="form-group">
+                <label for="EndHour">EndHour :</label>
+                <input type="number" id="EndHour" name="EndHour" required value="21">
+            </div>
+            <div class="form-group">
+                <label for="dayName">dayName :</label>
+                <input type="number" id="dayName" name="dayName" required value="6">
+            </div>
+            <div class="form-group">
+                <label for="monthName">monthName :</label>
+                <input type="number" id="monthName" name="monthName" required value="5">
+            </div>
+            <div class="form-group">
+                <button type="button" onclick="makePrediction()">Predict</button>
+                <div id="predictionResult" style="margin-left: 10px;"></div>
+            </div>
+        </form>
+        <br>
+        <h4>Future prediction of a number of periods</h4>
+        <form id="futurePredictionForm">
+            <div class="form-group">
+                <label for="sourcePrediction">Source :</label>
+                <select id="sourcePrediction" name="source" required>
+                    <option value="solar">Solar</option>
+                    <option value="wind">Wind</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="modelPrediction">Model :</label>
+                <select id="modelPrediction" name="model" required>
+                    <option value="modele_lgbm">LightGBM</option>
+                    <option value="modele_catboost">CatBoost</option>
+                    <option value="modele_xgboost">XGBoost</option>
+                    <option value="modele_randomforest">RandomForest</option>
+                    <option value="modele_extratrees">ExtraTrees</option>
+                    <option value="modele_decisiontree">DecisionTree</option>
+                    <option value="modele_voting">Voting</option>
+                    <option value="modele_stacking">Stacking</option>
+                    <option value="modele_bagging_lgbm">Bagging LightGBM</option>
+                    <option value="modele_bagging_catboost">Bagging CatBoost</option>
+                    <option value="modele_bagging_xgboost">Bagging XGBoost</option>
+                    <option value="modele_bagging_randomforest">Bagging RandomForest</option>
+                    <option value="modele_bagging_extratrees">Bagging ExtraTrees</option>
+                    <option value="modele_bagging_decisiontree">Bagging DecisionTree</option>
+                    <option value="modele_bagging_bagging">Voting Stacking Bagging</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="numPeriods">Number of periods :</label>
+                <input type="number" id="numPeriods" name="numPeriods" required value="20000">
+            </div>
+            <div class="form-group">
+                <button type="button" onclick="makeFuturePredictionByPeriods()">Predict future by periods</button>
+            </div>
+            <img src="{{ graph_path }}" alt="Future prediction graph by periods :" id="futurePredictionResult">
+        </form>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+</body>
+<style>
+    .navbar {
+        box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+    }
+    body {
+        background-color: #1C2833;
+    }
+    .bg-custom {
+        background-color: #283747;
+    }
+    .container {
+        color: white;
+        margin-top: 3%;
+    }
+    .form-group {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+    .form-group label {
+        width: 150px;
+        margin-right: 10px;
+    }
+    table {
+        border-collapse: collapse;
+        width: 100%;
+        margin-bottom: 20px;
+    }
+    th, td {
+        border: 1px solid #dddddd;
+        text-align: left;
+        padding: 8px;
+    }
+    th {
+        background-color: #a2a2a2;
+    }
+    .toggle-btn {
+        margin-bottom: 10px;
+    }
+</style>
+<script>
+    document.getElementById('toggleScadaDescBtn').addEventListener('click', function() {
+        var table = document.getElementById('scadaDesc');
+        if (table.style.display === 'none') {
+            table.style.display = 'table';
+        } else {
+            table.style.display = 'none';
+        }
+    });
+    document.getElementById('toggleStatusDescBtn').addEventListener('click', function() {
+        var table = document.getElementById('statusDesc');
+        if (table.style.display === 'none') {
+            table.style.display = 'table';
+        } else {
+            table.style.display = 'none';
+        }
+    });
+
+    function runScript() {
+        $("#status").text("Script en cours d'exécution...");
+        $.get("/load_energy_models")
+            .done(function() {
+                $("#status").text("Exécution du script terminée");
+            })
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        // Fetch CSV file
+        fetch('scripts/energy/res_models_solar.csv')
+            .then(response => response.text())
+            .then(csvData => {
+                // Parse CSV data
+                const rows = Papa.parse(csvData, { header: true }).data;
+
+                // Create table headers
+                const tableHeaders = Object.keys(rows[0]);
+                const thead = document.getElementById('csvTable').getElementsByTagName('thead')[0];
+                const headerRow = thead.insertRow();
+                tableHeaders.forEach(header => {
+                    const th = document.createElement('th');
+                    th.textContent = header;
+                    headerRow.appendChild(th);
+                });
+
+                // Create table rows
+                const tbody = document.getElementById('csvTable').getElementsByTagName('tbody')[0];
+                rows.forEach(row => {
+                    const tr = tbody.insertRow();
+                    tableHeaders.forEach(header => {
+                        const cell = tr.insertCell();
+                        cell.textContent = row[header];
+                    });
+                });
+            })
+            .catch(error => console.error('Error fetching CSV file:', error));
+    });
+
+    async function makePrediction() {
+        // Récupérer les valeurs des champs d'entrée
+        const source = document.getElementById('source').value;
+        const model = document.getElementById('model').value;
+        const dayOfYear = parseInt(document.getElementById('dayOfYear').value);
+        const Year = parseInt(document.getElementById('Year').value);
+        const Month = parseInt(document.getElementById('Month').value);
+        const Day = parseInt(document.getElementById('Day').value);
+        const StartHour = parseInt(document.getElementById('StartHour').value);
+        const EndHour = parseInt(document.getElementById('EndHour').value);
+        const dayName = parseInt(document.getElementById('dayName').value);
+        const monthName = parseInt(document.getElementById('monthName').value);
+
+        try {
+            // Effectuer une requête AJAX pour envoyer les données au serveur
+            const response = await fetch(`http://localhost:3000/energy/predict?source=${source}&model=${model}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    source,
+                    model,
+                    dayOfYear,
+                    Year,
+                    Month,
+                    Day,
+                    StartHour,
+                    EndHour,
+                    dayName,
+                    monthName
+                }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                console.error(`HTTP error! Status: ${response.status}, Message: ${data.error}`);
+            }
+
+            // Afficher le résultat de la prédiction dans une div
+            document.getElementById('predictionResult').innerHTML = `Prediction: ${data.prediction} MW`;
+        } catch (error) {
+            console.error('Error:', error.message);
+        }
+    }
+
+    async function makeFuturePredictionByPeriods() {
+        const source = document.getElementById('sourcePrediction').value;
+        const model = document.getElementById('modelPrediction').value;
+        const numPeriods = parseInt(document.getElementById('numPeriods').value);
+
+        try {
+            const response = await fetch(`http://localhost:3000/energy/predict-future-by-periods?source=${source}&model=${model}&numPeriods=${numPeriods}`, {
+                    method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    source,
+                    model,
+                    numPeriods
+                }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                console.error(`HTTP error! Status: ${response.status}, Message: ${data.error}`);
+            }
+
+            // Mettre à jour l'image sur la page avec le chemin du fichier image
+            // document.getElementById('futurePredictionResult').src = data.graph_path;
+            // Ajout d'un timestamp comme paramètre de requête pour que le navigateur ne récupère pas la version mise en cache
+            document.getElementById('futurePredictionResult').src = `${data.graph_path}?${Date.now()}`;
+        } catch (error) {
+            console.error('Error:', error.message);
+        }
+    }
+</script>
+</html>
