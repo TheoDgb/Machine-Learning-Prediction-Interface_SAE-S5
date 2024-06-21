@@ -509,7 +509,23 @@
         <br><br>Results:
         <br><img src="/static/images/energy/windTurbineFaults/results_model_1.png" alt="results_model_1.png">
         <br>
+
         <br><br><h4>2. Model Fault Diagnostic</h4>
+        <p>For fault diagnostic, we focused on identifying specific types of anomalies based on the detected faults.</p>
+        <br>
+        <h5>Model Training</h5>
+        <p>We used a Random Forest Classifier for fault diagnostic:</p>
+        <ul>
+            <li>Random forests are robust against overfitting and provide good accuracy for multi-class classification tasks.</li>
+        </ul>
+        <br>
+        <h5>Model Performance</h5>
+        <p>Metrics used to evaluate the model:</p>
+        <ul>
+            <li>Accuracy: Measures the overall correctness of the predictions.</li>
+            <li>Macro avg precision: Average precision across all classes.</li>
+            <li>Weighed avg precision: Precision weighted by the number of samples for each class.</li>
+        </ul>
         <br>Results:
         <br><img src="/static/images/energy/windTurbineFaults/results_model_2.png" alt="results_model_2.png">
 
@@ -520,9 +536,12 @@
         </div>
 
         <br><br><h3>Prediction using a CSV (predict_df)</h3>
-        <button type="button" onclick="makePrediction()">Predict</button>
-        <div id="predictionResult" style="margin-left: 10px;"></div>
-        <div id="status"></div>
+        <div class="form-group">
+            <button type="button" onclick="makePrediction()">Predict</button>
+            <div id="makePredictionStatus"></div>
+        </div>
+        <div style="clear:both;"></div> <!-- Clear floats to ensure layout consistency -->
+        <div id="predictionResult" style="margin-top: 10px;"></div>
         <br>
     </div>
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
@@ -604,10 +623,10 @@
     }
 
     async function makePrediction() {
-        $("#status").text("Script en cours d'exécution...");
+        $("#makePredictionStatus").text("Script en cours d'exécution...");
         $.get("/predict_wind_turbine_fault")
             .done(function(data) {
-                $("#status").text("Exécution du script terminée");
+                $("#makePredictionStatus").text("Exécution du script terminée");
 
                 if (data.error) {
                     $("#predictionResult").html("<p>" + data.error + "</p>");
@@ -621,7 +640,7 @@
                 }
             })
             .fail(function() {
-                $("#status").text("Erreur lors de l'exécution du script");
+                $("#makePredictionStatus").text("Erreur lors de l'exécution du script");
             });
     }
 </script>
