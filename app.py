@@ -222,6 +222,16 @@ def load_wind_turbine_faults_models():
         print(f"Erreur lors de l'exécution du script : {e}")
         return "Erreur lors de l'exécution du script"
 
+@app.route('/predict_wind_turbine_fault')
+def predict_wind_turbine_fault():
+    try:
+        result = subprocess.run(['python3', 'scripts/energy/windTurbineFaults/wind_turbine_fault_prediction.py'], capture_output=True, text=True)
+        output = result.stdout
+        return jsonify(json.loads(output))
+    except Exception as e:
+        print(f"Erreur lors de l'exécution du script : {e}")
+        return jsonify({"error": "Erreur lors de l'exécution du script"})
+
 
 
 if __name__ == '__main__':

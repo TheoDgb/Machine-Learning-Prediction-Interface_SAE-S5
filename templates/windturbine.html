@@ -519,156 +519,11 @@
             <div id="status" style="margin-left: 10px;"></div>
         </div>
 
-        <br><br><br><br><br><br><br><br><br><br><br><br>
-        <h4>Model results</h4>
-        <div class="row">
-            <div class="col-6">
-                Solar energy
-                <table>
-                    <tr>
-                        {% for col in solar_data.columns %}
-                        <th>{{ col }}</th>
-                        {% endfor %}
-                    </tr>
-                    {% for index, row in solar_data.iterrows() %}
-                    <tr>
-                        {% for value in row %}
-                        <td>{{ value }}</td>
-                        {% endfor %}
-                    </tr>
-                    {% endfor %}
-                </table>
-            </div>
-            <div class="col-6">
-                Wind energy
-                <table>
-                    <tr>
-                        {% for col in wind_data.columns %}
-                        <th>{{ col }}</th>
-                        {% endfor %}
-                    </tr>
-                    {% for index, row in wind_data.iterrows() %}
-                    <tr>
-                        {% for value in row %}
-                        <td>{{ value }}</td>
-                        {% endfor %}
-                    </tr>
-                    {% endfor %}
-                </table>
-            </div>
-        </div>
-        <br><br>
-        <h4>Load prediction models</h4>
-        <div class="form-group">
-            <button onclick="runScript()">Load models /!\ MAY TAKE SOME TIME</button>
-            <div id="status" style="margin-left: 10px;"></div>
-        </div>
+        <br><br><h3>Prediction using a CSV (predict_df)</h3>
+        <button type="button" onclick="makePrediction()">Predict</button>
+        <div id="predictionResult" style="margin-left: 10px;"></div>
+        <div id="status"></div>
         <br>
-        <h4>Prediction by features</h4>
-        <form id="predictionForm">
-            <div class="form-group">
-                <label for="source">Source :</label>
-                <select id="source" name="source" required>
-                    <option value="solar">Solar</option>
-                    <option value="wind">Wind</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="model">Model :</label>
-                <select id="model" name="model" required>
-                    <option value="modele_lgbm">LightGBM</option>
-                    <option value="modele_catboost">CatBoost</option>
-                    <option value="modele_xgboost">XGBoost</option>
-                    <option value="modele_randomforest">RandomForest</option>
-                    <option value="modele_extratrees">ExtraTrees</option>
-                    <option value="modele_decisiontree">DecisionTree</option>
-                    <option value="modele_voting">Voting</option>
-                    <option value="modele_stacking">Stacking</option>
-                    <option value="modele_bagging_lgbm">Bagging LightGBM</option>
-                    <option value="modele_bagging_catboost">Bagging CatBoost</option>
-                    <option value="modele_bagging_xgboost">Bagging XGBoost</option>
-                    <option value="modele_bagging_randomforest">Bagging RandomForest</option>
-                    <option value="modele_bagging_extratrees">Bagging ExtraTrees</option>
-                    <option value="modele_bagging_decisiontree">Bagging DecisionTree</option>
-                    <option value="modele_bagging_bagging">Voting Stacking Bagging</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="dayOfYear">dayOfYear :</label>
-                <input type="number" id="dayOfYear" name="dayOfYear" required value="204">
-            </div>
-            <div class="form-group">
-                <label for="Year">Year :</label>
-                <input type="number" id="Year" name="Year" required value="2020">
-            </div>
-            <div class="form-group">
-                <label for="Month">Month :</label>
-                <input type="number" id="Month" name="Month" required value="7">
-            </div>
-            <div class="form-group">
-                <label for="Day">Day :</label>
-                <input type="number" id="Day" name="Day" required value="22">
-            </div>
-            <div class="form-group">
-                <label for="StartHour">StartHour :</label>
-                <input type="number" id="StartHour" name="StartHour" required value="20">
-            </div>
-            <div class="form-group">
-                <label for="EndHour">EndHour :</label>
-                <input type="number" id="EndHour" name="EndHour" required value="21">
-            </div>
-            <div class="form-group">
-                <label for="dayName">dayName :</label>
-                <input type="number" id="dayName" name="dayName" required value="6">
-            </div>
-            <div class="form-group">
-                <label for="monthName">monthName :</label>
-                <input type="number" id="monthName" name="monthName" required value="5">
-            </div>
-            <div class="form-group">
-                <button type="button" onclick="makePrediction()">Predict</button>
-                <div id="predictionResult" style="margin-left: 10px;"></div>
-            </div>
-        </form>
-        <br>
-        <h4>Future prediction of a number of periods</h4>
-        <form id="futurePredictionForm">
-            <div class="form-group">
-                <label for="sourcePrediction">Source :</label>
-                <select id="sourcePrediction" name="source" required>
-                    <option value="solar">Solar</option>
-                    <option value="wind">Wind</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="modelPrediction">Model :</label>
-                <select id="modelPrediction" name="model" required>
-                    <option value="modele_lgbm">LightGBM</option>
-                    <option value="modele_catboost">CatBoost</option>
-                    <option value="modele_xgboost">XGBoost</option>
-                    <option value="modele_randomforest">RandomForest</option>
-                    <option value="modele_extratrees">ExtraTrees</option>
-                    <option value="modele_decisiontree">DecisionTree</option>
-                    <option value="modele_voting">Voting</option>
-                    <option value="modele_stacking">Stacking</option>
-                    <option value="modele_bagging_lgbm">Bagging LightGBM</option>
-                    <option value="modele_bagging_catboost">Bagging CatBoost</option>
-                    <option value="modele_bagging_xgboost">Bagging XGBoost</option>
-                    <option value="modele_bagging_randomforest">Bagging RandomForest</option>
-                    <option value="modele_bagging_extratrees">Bagging ExtraTrees</option>
-                    <option value="modele_bagging_decisiontree">Bagging DecisionTree</option>
-                    <option value="modele_bagging_bagging">Voting Stacking Bagging</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="numPeriods">Number of periods :</label>
-                <input type="number" id="numPeriods" name="numPeriods" required value="20000">
-            </div>
-            <div class="form-group">
-                <button type="button" onclick="makeFuturePredictionByPeriods()">Predict future by periods</button>
-            </div>
-            <img src="{{ graph_path }}" alt="Future prediction graph by periods :" id="futurePredictionResult">
-        </form>
     </div>
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
@@ -748,115 +603,26 @@
             })
     }
 
-    document.addEventListener("DOMContentLoaded", function () {
-        // Fetch CSV file
-        fetch('scripts/energy/res_models_solar.csv')
-            .then(response => response.text())
-            .then(csvData => {
-                // Parse CSV data
-                const rows = Papa.parse(csvData, { header: true }).data;
-
-                // Create table headers
-                const tableHeaders = Object.keys(rows[0]);
-                const thead = document.getElementById('csvTable').getElementsByTagName('thead')[0];
-                const headerRow = thead.insertRow();
-                tableHeaders.forEach(header => {
-                    const th = document.createElement('th');
-                    th.textContent = header;
-                    headerRow.appendChild(th);
-                });
-
-                // Create table rows
-                const tbody = document.getElementById('csvTable').getElementsByTagName('tbody')[0];
-                rows.forEach(row => {
-                    const tr = tbody.insertRow();
-                    tableHeaders.forEach(header => {
-                        const cell = tr.insertCell();
-                        cell.textContent = row[header];
-                    });
-                });
-            })
-            .catch(error => console.error('Error fetching CSV file:', error));
-    });
-
     async function makePrediction() {
-        // Récupérer les valeurs des champs d'entrée
-        const source = document.getElementById('source').value;
-        const model = document.getElementById('model').value;
-        const dayOfYear = parseInt(document.getElementById('dayOfYear').value);
-        const Year = parseInt(document.getElementById('Year').value);
-        const Month = parseInt(document.getElementById('Month').value);
-        const Day = parseInt(document.getElementById('Day').value);
-        const StartHour = parseInt(document.getElementById('StartHour').value);
-        const EndHour = parseInt(document.getElementById('EndHour').value);
-        const dayName = parseInt(document.getElementById('dayName').value);
-        const monthName = parseInt(document.getElementById('monthName').value);
+        $("#status").text("Script en cours d'exécution...");
+        $.get("/predict_wind_turbine_fault")
+            .done(function(data) {
+                $("#status").text("Exécution du script terminée");
 
-        try {
-            // Effectuer une requête AJAX pour envoyer les données au serveur
-            const response = await fetch(`http://localhost:3000/energy/predict?source=${source}&model=${model}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    source,
-                    model,
-                    dayOfYear,
-                    Year,
-                    Month,
-                    Day,
-                    StartHour,
-                    EndHour,
-                    dayName,
-                    monthName
-                }),
+                if (data.error) {
+                    $("#predictionResult").html("<p>" + data.error + "</p>");
+                } else {
+                    let resultHTML = "<table border='1'><tr><th>Line Number</th><th>Anomaly</th><th>Anomaly_Type</th></tr>";
+                    data.forEach(function(row) {
+                        resultHTML += "<tr><td>" + row.index + "</td><td>" + row.Anomaly + "</td><td>" + row.Anomaly_Type + "</td></tr>";
+                    });
+                    resultHTML += "</table>";
+                    $("#predictionResult").html(resultHTML);
+                }
+            })
+            .fail(function() {
+                $("#status").text("Erreur lors de l'exécution du script");
             });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                console.error(`HTTP error! Status: ${response.status}, Message: ${data.error}`);
-            }
-
-            // Afficher le résultat de la prédiction dans une div
-            document.getElementById('predictionResult').innerHTML = `Prediction: ${data.prediction} MW`;
-        } catch (error) {
-            console.error('Error:', error.message);
-        }
-    }
-
-    async function makeFuturePredictionByPeriods() {
-        const source = document.getElementById('sourcePrediction').value;
-        const model = document.getElementById('modelPrediction').value;
-        const numPeriods = parseInt(document.getElementById('numPeriods').value);
-
-        try {
-            const response = await fetch(`http://localhost:3000/energy/predict-future-by-periods?source=${source}&model=${model}&numPeriods=${numPeriods}`, {
-                    method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    source,
-                    model,
-                    numPeriods
-                }),
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                console.error(`HTTP error! Status: ${response.status}, Message: ${data.error}`);
-            }
-
-            // Mettre à jour l'image sur la page avec le chemin du fichier image
-            // document.getElementById('futurePredictionResult').src = data.graph_path;
-            // Ajout d'un timestamp comme paramètre de requête pour que le navigateur ne récupère pas la version mise en cache
-            document.getElementById('futurePredictionResult').src = `${data.graph_path}?${Date.now()}`;
-        } catch (error) {
-            console.error('Error:', error.message);
-        }
     }
 </script>
 </html>
