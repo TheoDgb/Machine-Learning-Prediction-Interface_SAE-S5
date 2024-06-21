@@ -494,10 +494,12 @@
         </ul>
         <p>Multiple scoring metrics are used:</p>
         <ul>
-            <li>Accuracy.</li>
-            <li>Macro-averaged precision.</li>
-            <li>Macro recall.</li>
-            <li>Macro F1 score.</li>
+            <li>Precision</li>
+            <li>Recall</li>
+            <li>F1-score</li>
+            <li>Accuracy</li>
+            <li>Macro average (macro avg)</li>
+            <li>Weighted average (weighted avg)</li>
         </ul>
         <h5>What is SMOTE?</h5>
         <p>SMOTE is a technique used to address the imbalance in datasets by oversampling the minority classes. It works by generating synthetic samples for the minority class, helping to balance the dataset and improve the performance of classification algorithms on minority classes.</p>
@@ -506,8 +508,10 @@
         <p>Stratified K-Fold Cross-Validation is a method of evaluating a model by dividing the data into K parts (in this case, 5) while maintaining the proportion of classes. Each fold is used as a validation set once, and the model is trained on the remaining folds. The results are averaged to provide a more accurate assessment of the model's performance.</p>
         <br>Convert 'Fault' column to binary for anomaly detection. NF = 0 Else 1
         <br><span style="color: lightcoral;">train_df['Anomaly'] = train_df['Fault'].apply(lambda x: 0 if x == 'NF' else 1)</span>
-        <br><br>Results:
+        <br><br>Results for each fold:
         <br><img src="/static/images/energy/windTurbineFaults/results_model_1.png" alt="results_model_1.png">
+        <br><br>Results for prediction on test set:
+        <br><img src="/static/images/energy/windTurbineFaults/results_model_1_2.png" alt="results_model_1_2.png">
         <br>
 
         <br><br><h4>2. Model Fault Diagnostic</h4>
@@ -522,9 +526,12 @@
         <h5>Model Performance</h5>
         <p>Metrics used to evaluate the model:</p>
         <ul>
-            <li>Accuracy: Measures the overall correctness of the predictions.</li>
-            <li>Macro avg precision: Average precision across all classes.</li>
-            <li>Weighed avg precision: Precision weighted by the number of samples for each class.</li>
+            <li>Precision</li>
+            <li>Recall</li>
+            <li>F1-score</li>
+            <li>Accuracy</li>
+            <li>Macro average (macro avg)</li>
+            <li>Weighted average (weighted avg)</li>
         </ul>
         <br>Results:
         <br><img src="/static/images/energy/windTurbineFaults/results_model_2.png" alt="results_model_2.png">
