@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Machine Learning Prediction</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-custom">
+        <a class="navbar-brand" href="#">Machine Learning Prediction</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="/">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/solarflare">Solar Flare</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/weather">Weather</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/energy">Energy Production</a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="/heart">Heart Disease</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h2>Heart Disease</h2>
+        <h4 class="mt-5">Feature Descriptions</h4>
+        <ul>
+            <li><strong>Age:</strong> Age of the patient.</li>
+            <li><strong>Sex:</strong> Sex of the patient (0 for female, 1 for male).</li>
+            <li><strong>Chest Pain Type:</strong> Type of chest pain experienced by the patient (0, 1, 2, 3).</li>
+            <li><strong>Resting Blood Pressure:</strong> Resting blood pressure in mm Hg.</li>
+            <li><strong>Cholesterol:</strong> Serum cholesterol in mg/dl.</li>
+            <li><strong>Fasting Blood Sugar:</strong> Fasting blood sugar > 120 mg/dl (0 for false, 1 for true).</li>
+            <li><strong>Resting Electrocardiographic Results:</strong> Resting electrocardiographic results (0, 1, 2).</li>
+            <li><strong>Maximum Heart Rate Achieved:</strong> Maximum heart rate achieved during exercise.</li>
+            <li><strong>Exercise Induced Angina:</strong> Exercise-induced angina (0 for no, 1 for yes).</li>
+            <li><strong>ST Depression Induced by Exercise:</strong> ST depression induced by exercise relative to rest.</li>
+            <li><strong>ST Slope:</strong> The slope of the peak exercise ST segment (0, 1, 2).</li>
+        </ul>
+        <h4>Prediction by Features</h4>
+        <form onsubmit="makePrediction(); return false;">
+            <div class="form-group">
+                <label for="age">Age:</label>
+                <input type="text" id="age" name="age" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="sex">Sex (0 for female, 1 for male):</label>
+                <input type="text" id="sex" name="sex" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="chest_pain_type">Chest Pain Type:</label>
+                <input type="text" id="chest_pain_type" name="chest_pain_type" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="resting_bp">Resting Blood Pressure:</label>
+                <input type="text" id="resting_bp" name="resting_bp" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="cholesterol">Cholesterol:</label>
+                <input type="text" id="cholesterol" name="cholesterol" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="fasting_bs">Fasting Blood Sugar (0 or 1):</label>
+                <input type="text" id="fasting_bs" name="fasting_bs" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="resting_ecg">Resting Electrocardiographic Results:</label>
+                <input type="text" id="resting_ecg" name="resting_ecg" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="max_hr">Maximum Heart Rate Achieved:</label>
+                <input type="text" id="max_hr" name="max_hr" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="exercise_angina">Exercise Induced Angina (0 or 1):</label>
+                <input type="text" id="exercise_angina" name="exercise_angina" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="oldpeak">ST Depression Induced by Exercise:</label>
+                <input type="text" id="oldpeak" name="oldpeak" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="st_slope">ST Slope:</label>
+                <input type="text" id="st_slope" name="st_slope" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="model_selection">Model Selection:</label>
+                <select id="model_selection" name="model_selection" class="form-control">
+                    <option value="knn">K-Nearest Neighbors</option>
+                    <option value="dt">Decision Tree</option>
+                    <option value="stacking">Stacking</option>
+                    <option value="voting">Voting</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Predict</button>
+        </form>
+        <div id="predictionResult" class="mt-3"></div>
+    </div>
+</body>
+<style>
+    .navbar {
+        box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+    }
+    body {
+        background-color: #1C2833;
+        color: white;
+    }
+    .bg-custom {
+        background-color: #283747;
+    }
+    .container {
+        margin-top: 3%;
+    }
+    .form-group {
+        margin-bottom: 15px;
+    }
+    .form-control {
+        background-color: #3A4A58;
+        border: none;
+        color: white;
+    }
+    .form-control::placeholder {
+        color: #CDD5DD;
+    }
+    .btn-primary {
+        background-color: #1C8ADB;
+        border: none;
+    }
+    .btn-primary:hover {
+        background-color: #155A8A;
+    }
+</style>
+<script>
+    async function makePrediction() {
+        const age = document.getElementById('age').value;
+        const sex = document.getElementById('sex').value;
+        const chestPainType = document.getElementById('chest_pain_type').value;
+        const restingBP = document.getElementById('resting_bp').value;
+        const cholesterol = document.getElementById('cholesterol').value;
+        const fastingBS = document.getElementById('fasting_bs').value;
+        const restingECG = document.getElementById('resting_ecg').value;
+        const maxHR = document.getElementById('max_hr').value;
+        const exerciseAngina = document.getElementById('exercise_angina').value;
+        const oldpeak = document.getElementById('oldpeak').value;
+        const stSlope = document.getElementById('st_slope').value;
+        const modelSelection = document.getElementById('model_selection').value;
+
+        try {
+            const response = await fetch('http://localhost:3000/heart/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    age,
+                    sex,
+                    chest_pain_type: chestPainType,
+                    resting_bp: restingBP,
+                    cholesterol,
+                    fasting_bs: fastingBS,
+                    resting_ecg: restingECG,
+                    max_hr: maxHR,
+                    exercise_angina: exerciseAngina,
+                    oldpeak,
+                    st_slope: stSlope,
+                    model: modelSelection
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            document.getElementById('predictionResult').innerHTML = `Prediction: ${data.prediction}`;
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    }
+</script>
+</html>
