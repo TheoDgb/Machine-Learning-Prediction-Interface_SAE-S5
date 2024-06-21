@@ -62,7 +62,51 @@ def predictsolar():
         print(f'Exception args: {e.args}')
         return jsonify({'error': 'Internal Server Error'}), 500
 
+# ==================== HEART ======================= 
 
+@app.route('/heart')
+def heart_home():
+    return render_template('heart.html')
+
+@app.route('/heart/predict', methods=['POST'])
+def predictheart():
+    try:
+        model_name = request.json.get('model')
+        if model_name == 'knn':
+            model = joblib.load('joblib/joblib_heart/knn_classifier.joblib')
+        elif model_name == 'dt':
+            model = joblib.load('joblib/joblib_heart/best_dt_classifier.joblib')
+        elif model_name == 'stacking':
+            model = joblib.load('joblib/joblib_heart/stacking_classifier.joblib')
+        elif model_name == 'voting':
+            model = joblib.load('joblib/joblib_heart/voting_classifier.joblib')
+        else:
+            return jsonify({'error': 'Invalid model selection'}), 400
+        
+        data = request.json
+        features = [
+            data['age'],
+            data['sex'],
+            data['chest_pain_type'],
+            data['resting_bp'],
+            data['cholesterol'],
+            data['fasting_bs'],
+            data['resting_ecg'],
+            data['max_hr'],
+            data['exercise_angina'],
+            data['oldpeak'],
+            data['st_slope'],
+        ]
+        features = [float(i) for i in features]
+        features = np.array(features).reshape(1, -1)
+        
+        prediction = model.predict(features)
+        return jsonify({'prediction': prediction.tolist()})
+    except Exception as e:
+        print(f'Error in predictheart route: {str(e)}')
+        print(f'Type of exception: {type(e)}')
+        print(f'Exception args: {e.args}')
+        return jsonify({'error': 'Internal Server Error'}), 500
 
 # ==================== WEATHER ====================
 class DateTransformer(BaseEstimator, TransformerMixin):
