@@ -6,6 +6,7 @@ import json
 import os
 import pandas as pd
 import numpy as np
+from sklearn.base import BaseEstimator, TransformerMixin
 
 
 app = Flask(__name__)
@@ -64,6 +65,13 @@ def predictsolar():
 
 
 # ==================== WEATHER ====================
+class DateTransformer(BaseEstimator, TransformerMixin):
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X):
+        return X
+
 @app.route('/weather')
 def weather_home():
     return render_template('weather.html')
@@ -73,34 +81,44 @@ def predictweather():
     try:
         model_name = request.json.get('model')
 
-        # Load the model based on the selected model name
+        print(f"Model name received: {model_name}")
+
         if model_name == 'modele_classification_random_forest':
-            model = joblib.load('joblib/joblib_weather/classification_random_forest.joblib')
+            model_path = 'joblib/joblib_weather/classification_random_forest.joblib'
         elif model_name == 'modele_random_forest':
-            model = joblib.load('joblib/joblib_solarflare/Random_Forest.joblib')
+            model_path = 'joblib/joblib_weather/Random_Forest.joblib'
         elif model_name == 'modele_regression_lineaire':
-            model = joblib.load('joblib/joblib_weather/regression_lineaire.joblib')
+            model_path = 'joblib/joblib_weather/regression_lineaire.joblib'
         elif model_name == 'modele_stacked_regressor':
-            model = joblib.load('joblib/joblib_weather/stacked_regressor.joblib')
+            model_path = 'joblib/joblib_weather/stacked_regressor.joblib'
         elif model_name == 'modele_ridge':
-            model = joblib.load('joblib/joblib_weather/ridge_model.joblib')
+            model_path = 'joblib/joblib_weather/ridge_model.joblib'
         else:
             return jsonify({'error': 'Invalid model selection'}), 400
 
+        print(f"Loading model from path: {model_path}")
+
+        if not os.path.isfile(model_path):
+            print(f"Model file not found: {model_path}")
+            return jsonify({'error': 'Model file not found'}), 404
+
+        model = joblib.load(model_path)
+        print("Model loaded successfully")
 
         data = request.json
         features = [
-           data['Year'], data['Month'], data['Day'],
-           data['Humidity'], data['Pression']
+            data['Year'], data['Month'], data['Day'],
+            data['Humidity'], data['Pression']
         ]
 
-        # Convert features to numpy array (assuming your model expects a numpy array)
+        print(f"Features received: {features}")
+
         features = np.array(features).reshape(1, -1)
+        print(f"Features reshaped: {features}")
 
-        # Make predictions with the loaded model
         prediction = model.predict(features)
+        print(f"Prediction made: {prediction}")
 
-        # Return the prediction as JSON
         return jsonify({'prediction': prediction.tolist()})
 
     except Exception as e:

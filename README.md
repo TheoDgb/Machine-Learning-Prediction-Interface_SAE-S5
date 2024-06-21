@@ -1,6 +1,15 @@
 # SAE - S5 & S6
 Groupe : BASQUIN Nicolas, BOLMONT Hugo, DAL GOBBO Théo
 
+pip show scikit-learn : 1.5.0
+
+pip uninstall scikit-learn
+pip install scikit-learn==1.3.2
+
+pip show numpy : 1.23.1
+
+pip install numpy==1.26.4
+
 ## Description du projet
 Développement d'une interface de visualisation de prédiction de données sur 3 sujets:
 <ul>
