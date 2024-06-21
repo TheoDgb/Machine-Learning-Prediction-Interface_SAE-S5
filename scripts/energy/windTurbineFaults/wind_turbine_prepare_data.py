@@ -41,3 +41,29 @@ html_file_path = 'static/images/energy/windTurbineFaults/df_combine_subset_table
 # Write the HTML table to a file
 with open(html_file_path, 'w') as file:
     file.write(html_table)
+
+
+# To have a balanced dataset, we will pick 300 samples of each fault mode data
+# Pick 300 samples of NF (No Fault) mode data
+df_nf = df_combine[df_combine.Fault=='NF'].sample(300, random_state=42)
+
+# With fault mode data
+df_f = df_combine[df_combine.Fault!='NF']
+
+# Combine no fault and faulty dataframes
+df_combine = pd.concat((df_nf, df_f), axis=0).reset_index(drop=True)
+
+# Drop irrelevant features
+train_df = df_combine.drop(columns=['DateTime_x', 'Time', 'Error', 'WEC: ava. windspeed',
+                                    'WEC: ava. available P from wind',
+                                    'WEC: ava. available P technical reasons',
+                                    'WEC: ava. Available P force majeure reasons',
+                                    'WEC: ava. Available P force external reasons',
+                                    'WEC: max. windspeed', 'WEC: min. windspeed',
+                                    'WEC: Operating Hours', 'WEC: Production kWh',
+                                    'WEC: Production minutes', 'DateTime_y'])
+
+# Imbalanced fault modes
+plt.figure(figsize=(10, 5))
+train_df.Fault.value_counts().plot.pie(title='Imbalanced Fault Modes')
+plt.savefig('static/images/energy/windTurbineFaults/imbalanced_fault_modes_pie.png')

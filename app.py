@@ -203,7 +203,7 @@ def wind_turbine_home():
     if not os.path.exists('static/images/energy/windTurbineFaults/wind_turbine_plot_time_span.png') or not os.path.exists('static/images/energy/windTurbineFaults/wind_turbine_plot_nb_fault_per_month.png'):
         subprocess.run(['python3', 'scripts/energy/windTurbineFaults/wind_turbine_analysis.py'])
 
-    #subprocess.run(['python3', 'scripts/energy/windTurbineFaults/wind_turbine_prepare_data.py'])
+    subprocess.run(['python3', 'scripts/energy/windTurbineFaults/wind_turbine_prepare_data.py'])
 
     # Charger les fichiers CSV
     solar_data = pd.read_csv('scripts/energy/res_models_solar.csv')
@@ -212,6 +212,15 @@ def wind_turbine_home():
     html_table = open('static/images/energy/windTurbineFaults/df_combine_subset_table.html', 'r').read()
 
     return render_template('windturbine.html', solar_data=solar_data, wind_data=wind_data, html_table=html_table)
+
+@app.route('/load_wind_turbine_fault_models')
+def load_wind_turbine_faults_models():
+    try:
+        subprocess.run(['python3', 'scripts/energy/windTurbineFaults/wind_turbine_fault_models.py'])
+        return "Script exécuté avec succès"
+    except Exception as e:
+        print(f"Erreur lors de l'exécution du script : {e}")
+        return "Erreur lors de l'exécution du script"
 
 
 

@@ -37,9 +37,9 @@
     </nav>
 
     <div class="container">
-        <h2>Wind Turbine (Fault Detection / Diagnostic)</h2>
+        <h1>Wind Turbine (Fault Detection / Diagnostic)</h1>
         <br>
-        <h4>Data presentation</h4>
+        <h3><strong>Data presentation</strong></h3>
 
         Data from Kaggle : <a href="https://www.kaggle.com/datasets/wasuratme96/iiot-data-of-wind-turbine/data" target="_blank">wind-turbine-faults</a>
         <br>There is 3 datasets :
@@ -440,32 +440,86 @@
         </div>
         <br><br>
 
-        <h4>Objective : Predict wind turbine faults</h4>
+        <h3><strong>Objective : Predict wind turbine faults</strong></h3>
         <br>Classification : Predicting categorical variables (wind turbine faults)
         <br>Supervised learning : For each example, the value is known
         <br><br>
-        <br><h4>Analysis</h4>
+        <br><h3><strong>Analysis</strong></h3>
         The 3 datasets have different time spans. The status data has the longest record timespan from January 2014 to December 2015.<br>Therefore, when seeing the SCADA records, we can refer to status and fault data to see what happens on the turbine at certain timestamps.
         <br><img src="/static/images/energy/windTurbineFaults/wind_turbine_plot_time_span.png" alt="wind_turbine_plot_time_span.png">
         <br><br>There are lots of EF events in October and November 2014, and lots of FF events from October 2014 - January 2015.
         <img src="/static/images/energy/windTurbineFaults/wind_turbine_plot_nb_fault_per_month.png" alt="wind_turbine_plot_nb_fault_per_month.png">
         <br><br>
-        <br><h4>Combine SCADA and Fault Data</h4>
+        <br><h3><strong>Combine SCADA and Fault Data</strong></h3>
         <br>We combine SCADA and fault data to pair each measurements with associated faults.
         <br><span style="color: lightcoral;">df_combine = scada_df.merge(fault_df, on='Time', how='outer')</span>
         <br><br>There are lots of NaNs, or unmatched SCADA timestamps with fault timestamps, because there are no faults happen at certain time like we saw in the first graph. For these NaNs, we will replace with "NF" (No Fault).
         <br><span style="color: lightcoral;">df_combine['Fault'] = df_combine['Fault'].replace(np.nan, 'NF')</span>
         <br><br><button id="togglecombinedScadaFaultBtn" class="btn btn-primary toggle-btn">Show / Hide Combined Dataframe</button>
         <div id="combinedScadaFaultTable" style="display: none;">
-            <h2>Combined SCADA and Fault Datasets (first 5 rows)</h2>
+            <h4>Combined SCADA and Fault Datasets (first 5 rows)</h4>
             Scroll to the right to see all columns !
             {{ html_table | safe }}
         </div>
+        <br><br><br><h3><strong>Data preparation for ML</strong></h3>
+        <br><span style="color: lightcoral;">df_combine.Fault.value_counts()</span>
+        <br><img src="/static/images/energy/windTurbineFaults/df_combine_nb_type_fault.png" alt="df_combine_nb_type_fault.png">
+        <br><br>To have a balanced dataset, we will pick 300 samples of each fault mode data
+        <br><br>Pick 300 samples of NF (No Fault) mode data
+        <br><span style="color: lightcoral;">df_nf = df_combine[df_combine.Fault=='NF'].sample(300, random_state=42)</span>
+        <br><br>Pick 300 samples of fault mode data
+        <br><span style="color: lightcoral;">df_f = df_combine[df_combine.Fault!='NF']</span>
+        <br><br>Combine no fault and faulty dataframes
+        <br><span style="color: lightcoral;">df_combine = pd.concat((df_nf, df_f), axis=0).reset_index(drop=True)</span>
+        <br><br>Drop irrelevant features
+        <br><span style="color: lightcoral;">df_combine have now 853 rows × 54 columns</span>
+        <br><img src="/static/images/energy/windTurbineFaults/imbalanced_fault_modes_pie.png" alt="imbalanced_fault_modes_pie.png">
+        <br><br><br><h3><strong>Machine Learning - Fault modes Classification</strong></h3>
+        <br><h4>2 Models</h4>
+        <ul>
+            <li>1. Model Fault Detection : detect if there is a fault or not</li>
+            <li>2. Model Fault Diagnostic : detect which fault mode is happening</li>
+        </ul>
+        <br>
+        <h4>1. Model Fault Detection</h4>
+        <p>Classification algorithms tend to be biased towards majority classes, as they seek to minimize overall error.</p>
+        <p>We use:</p>
+        <ul>
+            <li>SMOTE (Synthetic Minority Oversampling Technique) to oversample the minority classes (MF, GF, AF, EF).</li>
+            <li>LightGBM.</li>
+        </ul>
+        <p>To avoid overfitting:</p>
+        <ul>
+            <li>We employed Stratified K-Fold cross-validation with 5 folds.</li>
+        </ul>
+        <p>Multiple scoring metrics are used:</p>
+        <ul>
+            <li>Accuracy.</li>
+            <li>Macro-averaged precision.</li>
+            <li>Macro recall.</li>
+            <li>Macro F1 score.</li>
+        </ul>
+        <h5>What is SMOTE?</h5>
+        <p>SMOTE is a technique used to address the imbalance in datasets by oversampling the minority classes. It works by generating synthetic samples for the minority class, helping to balance the dataset and improve the performance of classification algorithms on minority classes.</p>
 
+        <h5>What is Stratified K-Fold Cross-Validation with 5 Folds?</h5>
+        <p>Stratified K-Fold Cross-Validation is a method of evaluating a model by dividing the data into K parts (in this case, 5) while maintaining the proportion of classes. Each fold is used as a validation set once, and the model is trained on the remaining folds. The results are averaged to provide a more accurate assessment of the model's performance.</p>
+        <br>Convert 'Fault' column to binary for anomaly detection. NF = 0 Else 1
+        <br><span style="color: lightcoral;">train_df['Anomaly'] = train_df['Fault'].apply(lambda x: 0 if x == 'NF' else 1)</span>
+        <br><br>Results:
+        <br><img src="/static/images/energy/windTurbineFaults/results_model_1.png" alt="results_model_1.png">
+        <br>
+        <br><br><h4>2. Model Fault Diagnostic</h4>
+        <br>Results:
+        <br><img src="/static/images/energy/windTurbineFaults/results_model_2.png" alt="results_model_2.png">
 
+        <br><br><br><br><h3>Load prediction models</h3>
+        <div class="form-group">
+            <button onclick="runScript()">Load Fault Detection / Diagnostic models</button>
+            <div id="status" style="margin-left: 10px;"></div>
+        </div>
 
-
-        <br><br><br><br>
+        <br><br><br><br><br><br><br><br><br><br><br><br>
         <h4>Model results</h4>
         <div class="row">
             <div class="col-6">
@@ -688,7 +742,7 @@
 
     function runScript() {
         $("#status").text("Script en cours d'exécution...");
-        $.get("/load_energy_models")
+        $.get("/load_wind_turbine_fault_models")
             .done(function() {
                 $("#status").text("Exécution du script terminée");
             })
