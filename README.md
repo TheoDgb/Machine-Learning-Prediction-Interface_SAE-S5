@@ -1,12 +1,7 @@
 # SAE - S5 & S6
 Groupe : BASQUIN Nicolas, BOLMONT Hugo, DAL GOBBO Théo
 
-pip show scikit-learn : 1.5.0
-
-pip uninstall scikit-learn
 pip install scikit-learn==1.3.2
-
-pip show numpy : 1.23.1
 
 pip install numpy==1.26.4
 
@@ -40,6 +35,8 @@ HTML/CSS/Bootstrap/Flask/JavaScript/Python/joblib/scikit-learn/Pandas/NumPy/Matp
     Nicolas : page Solar Flares => affichage des informations concernant les données utilisées, ajout d'une sélection de modèle pour réaliser une prédiction en fonction des caractéristiques données par l'utilisateur, règlage des problèmes de compatibilité entre les modèles et Flask
     Hugo : page Weather => affichage des informations concernant les données utilisées, . . .
     Théo : page Energy Production => affichage des informations concernant les données utilisées, description du dataset, tableau des résultats des modèles RMSE / R-squared pour les deux sources "solar" et "wind", ajout d'un graphique présentant les données, rédaction des documents demandés dans le README.md (Suivi du projet / Architecture du projet / Indications générales de mise en œuvre), règlage des problèmes de compatibilité entre les modèles et Flask
+### S6
+    Théo : page Wind Turbine (Classification) => affichage des informations concernant les données utilisées, la préparation des données, les résultats des 2 modèles Fault detection / diagnostic, charger les modèles joblib, réaliser des prédictions sur l'application
 
 ## Architecture du projet
 ### Français
