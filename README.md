@@ -10,7 +10,7 @@ Développement d'une interface de visualisation de prédiction de données sur 3
 <ul>
 <li>éruptions solaires</li>
 <li>météo</li>
-<li>énergie<ul><li>production d'énergie</li><li>éolienne (détection d'anomalies)</li></ul>
+<li>énergie<ul><li>production d'énergie</li><li>détection et identification d'anomalies dans une éolienne</li></ul>
 </ul>
 HTML/CSS/Bootstrap/Flask/JavaScript/Python/joblib/scikit-learn/Pandas/NumPy/Matplotlib
 <br> modèles utlisés : LightGBM, CatBoost, XGBoost, RandomForest, ExtraTrees, DecisionTree
